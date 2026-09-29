@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = React.useState("admin@kyu.ac.ug");
+  const [email, setEmail] = React.useState("admin@unicast.radio");
   const [password, setPassword] = React.useState("Admin@Kyambogo107");
   const [error, setError] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -57,10 +57,10 @@ export default function AdminLoginPage() {
             </div>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-white">
-            Studio Management Portal
+            UniCast Studio Management
           </h1>
           <p className="text-xs text-slate-400">
-            Kyambogo University Radio 107.4 FM • Authorized Staff Only
+            Your Campus Pulse • Authorized Staff & Presenters Only
           </p>
         </div>
 
@@ -69,10 +69,10 @@ export default function AdminLoginPage() {
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base text-white">Presenter & Admin Sign In</CardTitle>
-              <Badge variant="category" size="sm">KYU STUDIO</Badge>
+              <Badge variant="live" size="sm">UNICAST DESK</Badge>
             </div>
             <CardDescription className="text-xs">
-              Enter your university radio credentials to access the studio control desk.
+              Enter your credentials to access the broadcasting console and audience analytics.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -85,12 +85,12 @@ export default function AdminLoginPage() {
               )}
 
               <Input
-                label="University Email"
+                label="Email Address"
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="presenter@kyu.ac.ug"
+                placeholder="admin@unicast.radio"
                 leftIcon={<Mail className="w-4 h-4" />}
               />
 
@@ -110,7 +110,7 @@ export default function AdminLoginPage() {
                 size="lg"
                 isLoading={isLoading}
                 rightIcon={<ArrowRight className="w-4 h-4" />}
-                className="w-full justify-center mt-2"
+                className="w-full justify-center mt-2 font-bold"
               >
                 Access Studio Desk
               </Button>
@@ -119,12 +119,15 @@ export default function AdminLoginPage() {
         </Card>
 
         {/* Help Note for initial setup */}
-        <div className="p-4 rounded-xl bg-navy-900/60 border border-navy-800 text-center">
+        <div className="p-4 rounded-xl bg-navy-900/60 border border-navy-800 text-center space-y-1">
           <p className="text-xs text-slate-400">
-            Initial Administrator Account:
+            Initial Administrator Credentials:
           </p>
-          <p className="text-xs font-mono text-radio-300 mt-1 select-all">
-            admin@kyu.ac.ug • Admin@Kyambogo107
+          <p className="text-xs font-mono text-radio-300 select-all">
+            admin@unicast.radio (or admin@kyu.ac.ug)
+          </p>
+          <p className="text-xs font-mono text-slate-400 select-all">
+            Password: Admin@Kyambogo107
           </p>
         </div>
       </div>

@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/admin/", "/api/"],
     },
-    sitemap: "https://radio.kyu.ac.ug/sitemap.xml",
+    sitemap: "https://unicast.radio/sitemap.xml",
   };
 }

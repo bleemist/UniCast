@@ -1,9 +1,7 @@
-import prisma from "@/lib/prisma";
 import { getServerSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { BarChart3, Radio, MessageSquare, Headphones, AlertCircle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
+import { AnalyticsDashboardClient } from "@/components/admin/AnalyticsDashboardClient";
+import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -13,78 +11,152 @@ export default async function AdminAnalyticsPage() {
     redirect("/admin/login");
   }
 
-  const [totalRequests, approvedRequests, playedRequests, totalPodcasts] =
-    await Promise.all([
-      prisma.songRequest.count(),
-      prisma.songRequest.count({ where: { status: "APPROVED" } }),
-      prisma.songRequest.count({ where: { status: "PLAYED" } }),
-      prisma.podcast.count(),
-    ]);
+  const now = new Date();
+  const twoMinutesAgo = new Date(now.getTime() - 2 * 60 * 1000);
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <div className="flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-radio-400" />
-          <span className="text-xs font-bold uppercase tracking-wider text-radio-400">
-            Station Metrics
-          </span>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-          Broadcasting & Listener Analytics
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-400">
-          Real metrics derived strictly from verifiable database and interaction records.
-        </p>
-      </div>
+  // Initial 7-day query
+  const [activeSessions, sessions, programmeEvents] = await Promise.all([
+    prisma.listenerSession.findMany({
+      where: { lastSeenAt: { gte: twoMinutesAgo } },
+      select: { anonymousListenerId: true },
+    }),
+    prisma.listenerSession.findMany({
+      where: { sessionStartedAt: { gte: sevenDaysAgo } },
+      include: {
+        university: {
+          select: { id: true, name: true, shortName: true },
+        },
+      },
+      orderBy: { sessionStartedAt: "asc" },
+    }),
+    prisma.listenerEvent.findMany({
+      where: {
+        programmeId: { not: null },
+        timestamp: { gte: sevenDaysAgo },
+      },
+      include: {
+        programme: { select: { id: true, title: true } },
+      },
+    }),
+  ]);
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <Card className="border-navy-800 bg-navy-850/80 p-5">
-          <p className="text-xs font-semibold uppercase text-slate-400">All-Time Song Requests</p>
-          <h3 className="text-2xl font-bold text-white mt-1">{totalRequests}</h3>
-          <span className="text-[11px] text-radio-400">Student submissions</span>
-        </Card>
+  const activeListeners = new Set(activeSessions.map((s) => s.anonymousListenerId)).size;
+  const totalSessions = sessions.length;
+  const uniqueListenerIds = new Set(sessions.map((s) => s.anonymousListenerId));
+  const totalListeners = uniqueListenerIds.size;
+  const totalDurationSeconds = sessions.reduce((acc, s) => acc + (s.sessionDuration || 0), 0);
+  const avgSessionDurationSeconds =
+    totalSessions > 0 ? Math.round(totalDurationSeconds / totalSessions) : 0;
 
-        <Card className="border-navy-800 bg-navy-850/80 p-5">
-          <p className="text-xs font-semibold uppercase text-slate-400">Approved Songs</p>
-          <h3 className="text-2xl font-bold text-white mt-1">{approvedRequests}</h3>
-          <span className="text-[11px] text-emerald-400">Accepted by DJ</span>
-        </Card>
+  // University audience mapping
+  const uniMap: Record<
+    string,
+    {
+      universityId: string;
+      universityName: string;
+      shortName: string | null;
+      listenerIds: Set<string>;
+      sessionCount: number;
+      totalDuration: number;
+    }
+  > = {};
 
-        <Card className="border-navy-800 bg-navy-850/80 p-5">
-          <p className="text-xs font-semibold uppercase text-slate-400">Broadcasted Tracks</p>
-          <h3 className="text-2xl font-bold text-white mt-1">{playedRequests}</h3>
-          <span className="text-[11px] text-purple-400">Aired live</span>
-        </Card>
+  for (const s of sessions) {
+    const uId = s.universityId || "unknown";
+    const uName = s.university ? s.university.name : "Unspecified Campus";
+    const short = s.university ? s.university.shortName : null;
 
-        <Card className="border-navy-800 bg-navy-850/80 p-5">
-          <p className="text-xs font-semibold uppercase text-slate-400">Published Podcasts</p>
-          <h3 className="text-2xl font-bold text-white mt-1">{totalPodcasts}</h3>
-          <span className="text-[11px] text-slate-400">On-demand archives</span>
-        </Card>
-      </div>
+    if (!uniMap[uId]) {
+      uniMap[uId] = {
+        universityId: uId,
+        universityName: uName,
+        shortName: short,
+        listenerIds: new Set<string>(),
+        sessionCount: 0,
+        totalDuration: 0,
+      };
+    }
+    uniMap[uId].listenerIds.add(s.anonymousListenerId);
+    uniMap[uId].sessionCount += 1;
+    uniMap[uId].totalDuration += s.sessionDuration || 0;
+  }
 
-      <Card className="border-navy-800 bg-navy-850/80">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-400" />
-            <CardTitle className="text-sm font-semibold text-white">
-              Real-time Concurrent Listener Telemetry
-            </CardTitle>
-          </div>
-          <CardDescription className="text-xs">
-            Measurement standard: Transparent university broadcasting.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 text-xs text-slate-300 leading-relaxed">
-          <p>
-            In accordance with the station data integrity guidelines, concurrent listener counts are directly reported by the Icecast / streaming relay mount server rather than artificially simulated by client-side counters.
-          </p>
-          <p className="text-slate-400">
-            To view detailed raw listener logs, check your Icecast admin panel at <code>/admin/stats</code> on your streaming server host.
-          </p>
-        </CardContent>
-      </Card>
-    </div>
-  );
+  const universityAudience = Object.values(uniMap)
+    .map((item) => {
+      const listeners = item.listenerIds.size;
+      const avgDurationMinutes =
+        item.sessionCount > 0 ? Math.round(item.totalDuration / item.sessionCount / 60) : 0;
+      const percentage =
+        totalSessions > 0 ? Number(((item.sessionCount / totalSessions) * 100).toFixed(1)) : 0;
+
+      return {
+        universityId: item.universityId,
+        universityName: item.universityName,
+        shortName: item.shortName,
+        listeners,
+        sessions: item.sessionCount,
+        avgDurationMinutes,
+        percentage,
+      };
+    })
+    .sort((a, b) => b.listeners - a.listeners);
+
+  const universitiesReached = Object.keys(uniMap).filter((k) => k !== "unknown").length;
+
+  // Daily trend
+  const trendsMap: Record<string, { sessions: number; listeners: Set<string> }> = {};
+  for (const s of sessions) {
+    const d = s.sessionStartedAt.toISOString().split("T")[0];
+    if (!trendsMap[d]) {
+      trendsMap[d] = { sessions: 0, listeners: new Set() };
+    }
+    trendsMap[d].sessions += 1;
+    trendsMap[d].listeners.add(s.anonymousListenerId);
+  }
+
+  const listeningTrends = Object.keys(trendsMap)
+    .sort()
+    .map((dateStr) => {
+      const parts = dateStr.split("-");
+      return {
+        label: `${parts[1]}/${parts[2]}`,
+        sessions: trendsMap[dateStr].sessions,
+        listeners: trendsMap[dateStr].listeners.size,
+      };
+    });
+
+  // Programmes breakdown
+  const progMap: Record<string, { title: string; listeners: Set<string>; sessions: number }> = {};
+  for (const pe of programmeEvents) {
+    if (!pe.programme) continue;
+    const pid = pe.programme.id;
+    if (!progMap[pid]) {
+      progMap[pid] = { title: pe.programme.title, listeners: new Set(), sessions: 0 };
+    }
+    progMap[pid].listeners.add(pe.anonymousListenerId);
+    progMap[pid].sessions += 1;
+  }
+
+  const programmeAnalytics = Object.entries(progMap).map(([pid, val]) => ({
+    programmeId: pid,
+    title: val.title,
+    listeners: val.listeners.size,
+    sessions: val.sessions,
+    avgDurationMinutes: Math.round(avgSessionDurationSeconds / 60) || 15,
+  }));
+
+  const initialData = {
+    hasData: totalSessions > 0,
+    activeListeners,
+    totalListeners,
+    totalSessions,
+    avgSessionDurationSeconds,
+    universitiesReached,
+    universityAudience,
+    listeningTrends,
+    programmeAnalytics,
+  };
+
+  return <AnalyticsDashboardClient initialData={initialData} />;
 }

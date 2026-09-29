@@ -72,7 +72,7 @@ export default async function HomePage() {
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-              Today on Kyambogo Radio 107.4 FM
+              Today on UniCast
             </h2>
           </div>
           <Link
@@ -86,7 +86,7 @@ export default async function HomePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {schedules.map((item, idx) => {
-            const isFirst = idx === 1; // Mark mid-morning as active sample
+            const isFirst = idx === 1; // Mark mid-morning as sample active
             return (
               <Card
                 key={item.id}
@@ -158,14 +158,14 @@ export default async function HomePage() {
                 Interactive Student Radio
               </Badge>
               <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">
-                Got a favorite track or a shoutout for your hostel?
+                Got a favorite track or a shoutout for your campus?
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Send your song request directly to the on-air DJ in the Kyambogo
-                Radio studio. Dedicate it to your faculty, course-mates, or North Hall friends!
+                Send your song request directly to the on-air DJ in the UniCast
+                studio. Dedicate it to your faculty, course-mates, or hostel friends on any university campus!
               </p>
               <div className="pt-2">
-                <Link href="/requests">
+                <Link href="/request">
                   <Button
                     variant="primary"
                     size="lg"
@@ -233,7 +233,7 @@ export default async function HomePage() {
                   <div className="pt-1 flex items-center justify-between text-[11px] text-slate-400">
                     <span>Host: {pod.presenter.name}</span>
                     <Link
-                      href="/podcasts"
+                      href={`/podcasts/${pod.slug}`}
                       className="text-radio-400 hover:text-white font-medium"
                     >
                       Listen Now →
@@ -265,7 +265,7 @@ export default async function HomePage() {
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-              Meet Our Radio Presenters
+              Meet Our On-Air Presenters
             </h2>
           </div>
           <Link
@@ -279,9 +279,10 @@ export default async function HomePage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {presenters.map((pres) => (
-            <div
+            <Link
               key={pres.id}
-              className="rounded-2xl bg-navy-850 border border-navy-800 p-5 text-center space-y-3 hover:border-navy-700 transition-colors group"
+              href={`/presenters/${pres.slug}`}
+              className="rounded-2xl bg-navy-850 border border-navy-800 p-5 text-center space-y-3 hover:border-navy-700 transition-colors group block"
             >
               <div className="relative w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-radio-500/40 group-hover:border-radio-400 transition-colors">
                 <Image
@@ -302,7 +303,7 @@ export default async function HomePage() {
               <p className="text-xs text-slate-400 line-clamp-3 leading-relaxed">
                 {pres.bio}
               </p>
-            </div>
+            </Link>
           ))}
         </div>
       </section>

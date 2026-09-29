@@ -72,7 +72,7 @@ export function LiveStudioClientView({
             </span>
           </div>
           <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Kyambogo Radio 107.4 FM
+            UniCast Live Studio
           </h1>
         </div>
 

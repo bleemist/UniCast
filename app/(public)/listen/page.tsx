@@ -6,9 +6,9 @@ import { resolveCurrentAndUpcoming } from "@/lib/schedule";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Listen Live Studio | Kyambogo Radio 107.4 FM",
+  title: "Listen Live Studio | UniCast",
   description:
-    "Tune in live to Kyambogo University Online Radio. Stream official campus shows, guild debates, varsity athletics, and hot African hits.",
+    "Listen live to UniCast — Your Campus Pulse. Connecting students across universities with one shared broadcast, live student debates, varsity athletics, and hot African hits.",
 };
 
 export default async function ListenPage() {

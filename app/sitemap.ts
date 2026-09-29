@@ -1,16 +1,19 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://radio.kyu.ac.ug";
+  const baseUrl = "https://unicast.radio";
 
   const staticRoutes = [
     "",
+    "/listen",
     "/live",
     "/schedule",
-    "/presenters",
+    "/programmes",
     "/podcasts",
-    "/requests",
     "/news",
+    "/presenters",
+    "/request",
+    "/about",
     "/contact",
   ].map((route) => ({
     url: `${baseUrl}${route}`,

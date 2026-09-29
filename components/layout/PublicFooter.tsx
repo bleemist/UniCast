@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Radio, Heart, Shield, Music, Calendar, Phone, Mail, MapPin } from "lucide-react";
+import { Radio, Heart, Shield, Music, Calendar, Phone, Mail, MapPin, GraduationCap } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 
 export function PublicFooter() {
@@ -16,32 +16,31 @@ export function PublicFooter() {
                 <Radio className="w-5 h-5" />
               </div>
               <span className="font-extrabold text-lg text-white tracking-tight">
-                KYAMBOGO<span className="text-radio-400">RADIO</span>
+                UNI<span className="text-radio-400">CAST</span>
               </span>
             </div>
             <p className="text-xs leading-relaxed text-slate-400">
-              The official broadcasting voice of Kyambogo University. Informing,
-              entertaining, and empowering students across campus and worldwide on 107.4 FM & Online.
+              Your Campus Pulse. One single online university radio platform designed to unite students across campuses with live music, student debates, varsity sports, and career insights.
             </p>
             <div className="flex items-center gap-2 pt-1">
-              <Badge variant="gold">107.4 FM Kampala</Badge>
-              <Badge variant="category">Digital Web</Badge>
+              <Badge variant="live">Live Network</Badge>
+              <Badge variant="category">Digital Web Player</Badge>
             </div>
           </div>
 
           {/* Quick Navigation Links */}
           <div className="space-y-3">
             <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-200">
-              Quick Navigation
+              Explore UniCast
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
                 <Link
-                  href="/live"
+                  href="/listen"
                   className="hover:text-radio-400 transition-colors flex items-center gap-1.5"
                 >
                   <Radio className="w-3.5 h-3.5 text-radio-400" />
-                  Live Radio Studio
+                  Listen Live Stream
                 </Link>
               </li>
               <li>
@@ -50,16 +49,25 @@ export function PublicFooter() {
                   className="hover:text-radio-400 transition-colors flex items-center gap-1.5"
                 >
                   <Calendar className="w-3.5 h-3.5 text-radio-400" />
-                  Show Schedule & Lineup
+                  Weekly Show Schedule
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/requests"
+                  href="/programmes"
+                  className="hover:text-radio-400 transition-colors flex items-center gap-1.5"
+                >
+                  <GraduationCap className="w-3.5 h-3.5 text-radio-400" />
+                  Radio Programmes
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/request"
                   className="hover:text-radio-400 transition-colors flex items-center gap-1.5"
                 >
                   <Music className="w-3.5 h-3.5 text-radio-400" />
-                  Request a Song & Dedication
+                  Song Requests & Shoutouts
                 </Link>
               </li>
               <li>
@@ -67,7 +75,7 @@ export function PublicFooter() {
                   href="/podcasts"
                   className="hover:text-radio-400 transition-colors"
                 >
-                  Recorded Shows & Podcasts
+                  Recorded Podcasts
                 </Link>
               </li>
               <li>
@@ -75,7 +83,7 @@ export function PublicFooter() {
                   href="/presenters"
                   className="hover:text-radio-400 transition-colors"
                 >
-                  Meet Our Presenters
+                  Meet On-Air Hosts
                 </Link>
               </li>
               <li>
@@ -83,31 +91,29 @@ export function PublicFooter() {
                   href="/news"
                   className="hover:text-radio-400 transition-colors"
                 >
-                  Campus News & Features
+                  Campus News & Sports
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Contact & Studio Location */}
+          {/* Privacy & Audience Analytics */}
           <div className="space-y-3">
             <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-200">
-              Studio & Contact
+              Audience & Privacy
             </h4>
-            <ul className="space-y-2.5 text-xs text-slate-400">
-              <li className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-radio-400 flex-shrink-0 mt-0.5" />
-                <span>Radio House, Main Campus, Kyambogo University, Kampala, Uganda</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-radio-400 flex-shrink-0" />
-                <span>+256 700 000 000 (Studio Line)</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-radio-400 flex-shrink-0" />
-                <span>radio@kyu.ac.ug</span>
-              </li>
-            </ul>
+            <div className="p-3.5 rounded-xl bg-navy-900 border border-navy-800 space-y-2 text-xs">
+              <div className="flex items-center gap-2 text-emerald-400 font-semibold">
+                <Shield className="w-4 h-4" />
+                <span>Anonymous Measurement</span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                UniCast measures which universities listen most using anonymous session identifiers. No student names, emails, or student numbers are ever requested.
+              </p>
+              <Link href="/about" className="text-[11px] text-radio-400 hover:underline block pt-1">
+                Read our analytics policy →
+              </Link>
+            </div>
           </div>
 
           {/* Broadcast & Admin Access */}
@@ -116,8 +122,7 @@ export function PublicFooter() {
               Broadcasting Desk
             </h4>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Authorized university DJs and station staff can log into the studio
-              dashboard to manage programmes, live requests, and stream controls.
+              Authorized station DJs, editors, and administrators can log in to manage schedules, approve requests, and review university audience metrics.
             </p>
             <div className="pt-2">
               <Link
@@ -125,7 +130,7 @@ export function PublicFooter() {
                 className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-navy-850 hover:bg-navy-800 text-slate-200 hover:text-white border border-navy-700 text-xs font-medium transition-colors"
               >
                 <Shield className="w-3.5 h-3.5 text-radio-400" />
-                Studio / Admin Access
+                Studio / Admin Portal
               </Link>
             </div>
           </div>
@@ -133,9 +138,9 @@ export function PublicFooter() {
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-navy-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© {currentYear} Kyambogo University Radio 107.4 FM. All rights reserved.</p>
+          <p>© {currentYear} UniCast. Your Campus Pulse. All rights reserved.</p>
           <p className="flex items-center gap-1.5">
-            Engineered with <Heart className="w-3.5 h-3.5 text-red-500 fill-current" /> for Kyambogo University Students
+            One Radio. Every Campus. Powered by <Heart className="w-3.5 h-3.5 text-red-500 fill-current" /> for University Students
           </p>
         </div>
       </div>

@@ -4,8 +4,15 @@ import Link from "next/link";
 import { Newspaper, Calendar, User, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
+import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Campus News & Bulletins | UniCast",
+  description:
+    "Read the latest university news, varsity sports coverage, and student innovation stories on UniCast.",
+};
 
 export default async function NewsPage() {
   const articles = await prisma.article.findMany({
@@ -30,7 +37,7 @@ export default async function NewsPage() {
           Radio News & Campus Bulletin
         </h1>
         <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
-          Top stories from Kyambogo University campus, student guild activities, varsity sports, and national events.
+          Top stories across university campuses, student leadership activities, varsity sports, and national youth developments.
         </p>
       </div>
 
@@ -47,51 +54,49 @@ export default async function NewsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {articles.map((art) => (
-            <Card
+            <Link
               key={art.id}
-              className="border-navy-800 bg-navy-850/80 hover:border-navy-700 transition-colors overflow-hidden flex flex-col justify-between group"
+              href={`/news/${art.slug}`}
+              className="group block focus-visible:outline-none"
             >
-              <div>
-                <div className="relative h-48 w-full bg-navy-900 overflow-hidden">
-                  <Image
-                    src={art.coverImage}
-                    alt={art.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
-                  <div className="absolute top-3 left-3">
-                    <Badge variant="category" size="sm">
-                      {art.category.name}
-                    </Badge>
+              <Card className="h-full border-navy-800 bg-navy-850/80 hover:border-radio-400/50 hover:bg-navy-850 transition-all duration-300 overflow-hidden flex flex-col justify-between shadow-lg">
+                <div>
+                  <div className="relative h-48 w-full bg-navy-900 overflow-hidden">
+                    <Image
+                      src={art.coverImage}
+                      alt={art.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
+                    <div className="absolute top-3 left-3">
+                      <Badge variant="category" size="sm">
+                        {art.category.name}
+                      </Badge>
+                    </div>
                   </div>
+
+                  <CardContent className="p-5 space-y-2">
+                    <h3 className="text-base font-bold text-white group-hover:text-radio-300 transition-colors line-clamp-2">
+                      {art.title}
+                    </h3>
+                    <p className="text-xs text-slate-400 line-clamp-3 leading-relaxed">
+                      {art.excerpt}
+                    </p>
+                  </CardContent>
                 </div>
 
-                <CardContent className="p-5 space-y-2">
-                  <h3 className="text-base font-bold text-white group-hover:text-radio-300 transition-colors line-clamp-2">
-                    {art.title}
-                  </h3>
-                  <p className="text-xs text-slate-400 line-clamp-3 leading-relaxed">
-                    {art.excerpt}
-                  </p>
-                </CardContent>
-              </div>
-
-              <div className="p-5 pt-0 border-t border-navy-750/60 mt-4 flex items-center justify-between text-[11px] text-slate-400">
-                <span className="flex items-center gap-1">
-                  <User className="w-3.5 h-3.5 text-radio-400" />
-                  {art.author.name}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-slate-500" />
-                  {new Date(art.publishedAt).toLocaleDateString("en-UG", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </span>
-              </div>
-            </Card>
+                <div className="p-5 pt-0 border-t border-navy-750/60 mt-4 flex items-center justify-between text-[11px] text-slate-400">
+                  <span className="flex items-center gap-1">
+                    <User className="w-3.5 h-3.5 text-radio-400" />
+                    {art.author.name}
+                  </span>
+                  <span className="text-radio-400 font-semibold group-hover:translate-x-1 transition-transform flex items-center gap-0.5">
+                    Read article →
+                  </span>
+                </div>
+              </Card>
+            </Link>
           ))}
         </div>
       )}

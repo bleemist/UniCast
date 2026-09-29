@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Headphones, Play, Search, Clock, Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -140,9 +141,11 @@ export function PodcastsClientView({
                   </div>
 
                   <CardContent className="p-5 space-y-2">
-                    <h3 className="text-base font-bold text-white line-clamp-2">
-                      {pod.title}
-                    </h3>
+                    <Link href={`/podcasts/${pod.slug}`} className="hover:text-radio-400 transition-colors">
+                      <h3 className="text-base font-bold text-white line-clamp-2">
+                        {pod.title}
+                      </h3>
+                    </Link>
                     <p className="text-xs text-slate-400 line-clamp-3 leading-relaxed">
                       {pod.description}
                     </p>

@@ -3,11 +3,13 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Radio, Menu, X, Play, Volume2, Search } from "lucide-react";
+import { Radio, Menu, X, Play, Volume2, Search, GraduationCap } from "lucide-react";
 import { useAudioPlayer } from "@/components/audio/AudioPlayerContext";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { GlobalSearchModal } from "@/components/search/GlobalSearchModal";
+import { UniversitySelectorModal } from "@/components/university/UniversitySelectorModal";
+import { getSelectedUniversity, hasDismissedUniversityPrompt } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -18,13 +20,31 @@ const NAV_LINKS = [
   { href: "/podcasts", label: "Podcasts" },
   { href: "/news", label: "News" },
   { href: "/presenters", label: "Presenters" },
+  { href: "/request", label: "Request" },
 ];
 
 export function PublicHeader() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [searchOpen, setSearchOpen] = React.useState(false);
+  const [uniModalOpen, setUniModalOpen] = React.useState(false);
+  const [selectedUni, setSelectedUni] = React.useState<{ id: string; name: string } | null>(null);
+
   const { isPlaying, playLiveStream, streamOnline } = useAudioPlayer();
+
+  // Check selected university and prompt if first visit
+  React.useEffect(() => {
+    const current = getSelectedUniversity();
+    setSelectedUni(current);
+
+    // If new visitor who hasn't selected or dismissed, open modal after gentle delay
+    if (!current && !hasDismissedUniversityPrompt()) {
+      const timer = setTimeout(() => {
+        setUniModalOpen(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   // Close mobile menu on route change
   React.useEffect(() => {
@@ -60,14 +80,14 @@ export function PublicHeader() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-base sm:text-lg tracking-tight text-white">
-                  KYAMBOGO<span className="text-radio-400">RADIO</span>
+                  UNI<span className="text-radio-400">CAST</span>
                 </span>
-                <Badge variant="gold" size="sm">
-                  107.4 FM
+                <Badge variant="live" size="sm">
+                  LIVE
                 </Badge>
               </div>
               <p className="text-[11px] text-slate-400 hidden sm:block tracking-wide">
-                The Voice of Kyambogo University
+                Your Campus Pulse
               </p>
             </div>
           </Link>
@@ -75,7 +95,7 @@ export function PublicHeader() {
           {/* Desktop Navigation */}
           <nav
             aria-label="Main Navigation"
-            className="hidden lg:flex items-center gap-1 bg-navy-900/60 border border-navy-800 rounded-full px-3 py-1.5"
+            className="hidden xl:flex items-center gap-1 bg-navy-900/60 border border-navy-800 rounded-full px-3 py-1.5"
           >
             {NAV_LINKS.map((link) => {
               const isActive =
@@ -100,8 +120,21 @@ export function PublicHeader() {
             })}
           </nav>
 
-          {/* Right Side: Search & Listen Live Action */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
+          {/* Right Side: University Selector, Search & Listen CTA */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Campus Selector Trigger */}
+            <button
+              onClick={() => setUniModalOpen(true)}
+              aria-label="Select your university"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-navy-850 hover:bg-navy-800 border border-navy-700/80 text-xs text-slate-300 hover:text-white transition-colors"
+            >
+              <GraduationCap className="w-3.5 h-3.5 text-radio-400" />
+              <span className="max-w-[130px] sm:max-w-[160px] truncate text-[11px] font-medium">
+                {selectedUni ? selectedUni.name : "Select Campus"}
+              </span>
+              <span className="text-[10px] text-radio-400">▾</span>
+            </button>
+
             {/* Global Search Button */}
             <button
               onClick={() => setSearchOpen(true)}
@@ -109,8 +142,8 @@ export function PublicHeader() {
               className="flex items-center gap-2 px-3 py-2 rounded-xl bg-navy-850 hover:bg-navy-800 text-slate-300 hover:text-white border border-navy-750 transition-colors text-xs"
             >
               <Search className="w-4 h-4 text-radio-400" />
-              <span className="hidden xl:inline text-slate-400">Search</span>
-              <kbd className="hidden xl:inline-block px-1.5 py-0.5 text-[10px] font-mono rounded bg-navy-900 border border-navy-700 text-slate-400">
+              <span className="hidden lg:inline text-slate-400">Search</span>
+              <kbd className="hidden lg:inline-block px-1.5 py-0.5 text-[10px] font-mono rounded bg-navy-900 border border-navy-700 text-slate-400">
                 ⌘K
               </kbd>
             </button>
@@ -136,7 +169,7 @@ export function PublicHeader() {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle navigation menu"
-              className="lg:hidden p-2.5 rounded-lg bg-navy-850 border border-navy-700 text-slate-300 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radio-400"
+              className="xl:hidden p-2.5 rounded-lg bg-navy-850 border border-navy-700 text-slate-300 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radio-400"
             >
               {mobileMenuOpen ? (
                 <X className="w-6 h-6" />
@@ -149,8 +182,25 @@ export function PublicHeader() {
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden fixed inset-x-0 top-20 bg-navy-950/98 border-b border-navy-700/80 p-5 shadow-2xl backdrop-blur-2xl animate-in slide-in-from-top-2 duration-200">
+          <div className="xl:hidden fixed inset-x-0 top-20 bg-navy-950/98 border-b border-navy-700/80 p-5 shadow-2xl backdrop-blur-2xl animate-in slide-in-from-top-2 duration-200 max-h-[85vh] overflow-y-auto">
             <nav className="flex flex-col space-y-1.5">
+              {/* Campus Selector in Mobile Menu */}
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setUniModalOpen(true);
+                }}
+                className="flex items-center justify-between px-4 py-3 rounded-xl bg-navy-900 border border-navy-750 text-slate-200 text-sm mb-2"
+              >
+                <div className="flex items-center gap-2.5">
+                  <GraduationCap className="w-4 h-4 text-radio-400" />
+                  <span className="font-medium truncate">
+                    {selectedUni ? `Campus: ${selectedUni.name}` : "Select Your University"}
+                  </span>
+                </div>
+                <span className="text-xs text-radio-400 font-semibold">Change</span>
+              </button>
+
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
@@ -200,20 +250,16 @@ export function PublicHeader() {
                   leftIcon={<Play className="w-5 h-5 fill-current" />}
                   className="w-full justify-center"
                 >
-                  Listen Live Now (107.4 FM)
+                  Listen Live Now
                 </Button>
 
                 <div className="flex items-center justify-center gap-4 pt-2 text-xs text-slate-400">
-                  <Link href="/request" className="hover:text-radio-400">
-                    Request Song
-                  </Link>
-                  <span>•</span>
                   <Link href="/about" className="hover:text-radio-400">
-                    About Radio
+                    About UniCast
                   </Link>
                   <span>•</span>
                   <Link href="/contact" className="hover:text-radio-400">
-                    Contact Us
+                    Contact Studio
                   </Link>
                 </div>
               </div>
@@ -226,6 +272,13 @@ export function PublicHeader() {
       <GlobalSearchModal
         isOpen={searchOpen}
         onClose={() => setSearchOpen(false)}
+      />
+
+      {/* University Selection Modal */}
+      <UniversitySelectorModal
+        isOpen={uniModalOpen}
+        onClose={() => setUniModalOpen(false)}
+        onSelected={(uni) => setSelectedUni(uni)}
       />
     </>
   );

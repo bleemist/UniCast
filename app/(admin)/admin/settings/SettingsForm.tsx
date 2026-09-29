@@ -12,16 +12,16 @@ interface SettingsFormProps {
 
 export function SettingsForm({ initialSettings }: SettingsFormProps) {
   const [stationName, setStationName] = React.useState(
-    initialSettings?.stationName || "Kyambogo Radio"
+    initialSettings?.stationName || "UniCast"
   );
   const [frequency, setFrequency] = React.useState(
-    initialSettings?.frequency || "107.4 FM & Online"
+    initialSettings?.frequency || "Online Radio Network"
   );
   const [streamUrl, setStreamUrl] = React.useState(
     initialSettings?.streamUrl || "https://stream.zeno.fm/f3wvbbqmdg8uv"
   );
   const [contactEmail, setContactEmail] = React.useState(
-    initialSettings?.contactEmail || "radio@kyu.ac.ug"
+    initialSettings?.contactEmail || "studio@unicast.radio"
   );
   const [contactPhone, setContactPhone] = React.useState(
     initialSettings?.contactPhone || "+256 700 000 000"

@@ -30,7 +30,7 @@ export function AdminHeader() {
     <header className="h-16 border-b border-navy-800 bg-navy-950/70 backdrop-blur-md px-6 flex items-center justify-between z-20">
       <div className="flex items-center gap-3">
         <h1 className="text-sm font-semibold text-white">
-          Kyambogo Radio 107.4 FM • Studio Management
+          UniCast • Your Campus Pulse Studio Management
         </h1>
       </div>
 

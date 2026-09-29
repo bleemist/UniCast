@@ -4,8 +4,8 @@ import { Badge } from "@/components/ui/Badge";
 import { ContactForm } from "./ContactForm";
 
 export const metadata = {
-  title: "Contact Kyambogo Radio",
-  description: "Get in touch with Kyambogo University Online Radio studio and management.",
+  title: "Contact UniCast | Your Campus Pulse",
+  description: "Get in touch with UniCast studio management, news editors, and presenter desks.",
 };
 
 export default function ContactPage() {
@@ -20,10 +20,10 @@ export default function ContactPage() {
           </span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-          Contact Kyambogo Radio 107.4 FM
+          Contact UniCast Radio
         </h1>
         <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
-          Have an announcement, advert inquiry, news tip, or feedback on our programmes? Reach out to our station team.
+          Have an announcement, advert inquiry, news tip, partnership request, or feedback on our shows? Reach out to our team.
         </p>
       </div>
 
@@ -34,7 +34,7 @@ export default function ContactPage() {
             <CardHeader className="pb-4 border-b border-navy-750">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg text-white">Send Us a Message</CardTitle>
-                <Badge variant="category" size="sm">STATION DESK</Badge>
+                <Badge variant="live" size="sm">STUDIO DESK</Badge>
               </div>
               <CardDescription className="text-xs">
                 We review inquiries during working hours (Monday to Friday, 8:00 AM - 5:00 PM).
@@ -52,23 +52,21 @@ export default function ContactPage() {
             <CardContent className="p-6 space-y-6">
               <div className="space-y-1">
                 <h3 className="text-base font-bold text-white">
-                  Studio Location & Lines
+                  Studio Inquiries & Channels
                 </h3>
                 <p className="text-xs text-slate-400">
-                  Main campus broadcasting headquarters
+                  National campus broadcasting network
                 </p>
               </div>
 
               <div className="space-y-4 text-xs">
                 <div className="flex items-start gap-3">
                   <div className="w-9 h-9 rounded-lg bg-radio-500/10 border border-radio-500/30 flex items-center justify-center text-radio-400 flex-shrink-0">
-                    <MapPin className="w-4 h-4" />
+                    <Mail className="w-4 h-4" />
                   </div>
                   <div>
-                    <strong className="text-white block">Studio Location</strong>
-                    <span className="text-slate-400">
-                      Radio House, Kyambogo University Main Campus, Kampala, Uganda
-                    </span>
+                    <strong className="text-white block">Official Email</strong>
+                    <span className="text-slate-400">studio@unicast.radio</span>
                   </div>
                 </div>
 
@@ -77,18 +75,8 @@ export default function ContactPage() {
                     <Phone className="w-4 h-4" />
                   </div>
                   <div>
-                    <strong className="text-white block">Studio Hotline</strong>
-                    <span className="text-slate-400">+256 700 000 000 / +256 414 000 000</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-radio-500/10 border border-radio-500/30 flex items-center justify-center text-radio-400 flex-shrink-0">
-                    <Mail className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <strong className="text-white block">Official Email</strong>
-                    <span className="text-slate-400">radio@kyu.ac.ug</span>
+                    <strong className="text-white block">Studio Phone</strong>
+                    <span className="text-slate-400">+256 700 000 000</span>
                   </div>
                 </div>
 
@@ -97,8 +85,8 @@ export default function ContactPage() {
                     <Radio className="w-4 h-4" />
                   </div>
                   <div>
-                    <strong className="text-white block">Frequency</strong>
-                    <span className="text-slate-400">107.4 FM Kampala & Worldwide Web Stream</span>
+                    <strong className="text-white block">Broadcast Platform</strong>
+                    <span className="text-slate-400">UniCast Web Player • Single Live Stream</span>
                   </div>
                 </div>
               </div>

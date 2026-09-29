@@ -19,6 +19,9 @@ import {
   LogOut,
   ExternalLink,
   ChevronRight,
+  GraduationCap,
+  Activity,
+  Compass,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
@@ -43,6 +46,20 @@ const ADMIN_NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    label: "AUDIENCE & ANALYTICS",
+    items: [
+      { href: "/admin/analytics", label: "Overview & Reach", icon: BarChart3 },
+      { href: "/admin/analytics/universities", label: "University Breakdown", icon: Compass },
+      { href: "/admin/analytics/listeners", label: "Session Logs", icon: Activity },
+    ],
+  },
+  {
+    label: "CAMPUS NETWORK",
+    items: [
+      { href: "/admin/universities", label: "Manage Universities", icon: GraduationCap },
+    ],
+  },
+  {
     label: "PROGRAMMING",
     items: [
       { href: "/admin/programmes", label: "Programmes", icon: Layers },
@@ -59,11 +76,10 @@ const ADMIN_NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: "MANAGEMENT",
+    label: "ADMINISTRATION",
     items: [
       { href: "/admin/users", label: "Users & Roles", icon: Users },
-      { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
-      { href: "/admin/settings", label: "Settings", icon: Settings },
+      { href: "/admin/settings", label: "Station Settings", icon: Settings },
     ],
   },
 ];
@@ -90,21 +106,21 @@ export function AdminSidebar() {
           </div>
           <div>
             <span className="font-bold text-sm tracking-tight text-white block">
-              STUDIO DESK
+              UNICAST DESK
             </span>
             <span className="text-[10px] text-radio-400 font-mono">
-              KYU 107.4 FM
+              CAMPUS PULSE
             </span>
           </div>
         </Link>
 
         <Badge variant="live" size="sm">
-          READY
+          LIVE
         </Badge>
       </div>
 
       {/* Navigation Sections */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-5 custom-scrollbar">
         {ADMIN_NAV_GROUPS.map((group) => (
           <div key={group.label} className="space-y-1">
             <div className="px-3 text-[10px] font-bold tracking-wider uppercase text-slate-500 mb-1.5">
@@ -115,7 +131,8 @@ export function AdminSidebar() {
               const isActive =
                 item.href === "/admin"
                   ? pathname === "/admin"
-                  : pathname.startsWith(item.href);
+                  : pathname === item.href ||
+                    (item.href !== "/admin/analytics" && pathname.startsWith(item.href));
 
               return (
                 <Link

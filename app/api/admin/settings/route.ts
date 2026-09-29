@@ -24,8 +24,8 @@ export async function PUT(req: Request) {
         id: "station_settings",
         streamUrl: streamUrl || "https://stream.zeno.fm/f3wvbbqmdg8uv",
         isLiveManualOverride: isLiveManualOverride || false,
-        stationName: stationName || "Kyambogo Radio",
-        frequency: frequency || "107.4 FM & Online",
+        stationName: stationName || "UniCast",
+        frequency: frequency || "Online Radio Network",
       },
     });
 

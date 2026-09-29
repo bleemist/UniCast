@@ -6,8 +6,7 @@ import { COOKIE_NAME } from "./constants";
 export { COOKIE_NAME };
 
 const JWT_SECRET =
-  process.env.JWT_SECRET || "kyambogo-radio-super-secure-production-jwt-key-2026-uganda";
-
+  process.env.JWT_SECRET || "unicast-super-secure-production-jwt-key-2026-uganda";
 
 export function signToken(payload: UserSession): string {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
@@ -28,13 +27,25 @@ export async function getServerSession(): Promise<UserSession | null> {
   return verifyToken(token);
 }
 
-export function hasPermission(userRole: Role, requiredRole: Role): boolean {
-  const roleHierarchy: Record<Role, number> = {
-    SUPER_ADMIN: 4,
-    RADIO_ADMIN: 3,
-    PRESENTER: 2,
-    EDITOR: 1,
-  };
+export function hasPermission(
+  userRole: Role,
+  actionDomain: "universities" | "programmes" | "news" | "users" | "settings" | "broadcast" | "analytics"
+): boolean {
+  if (userRole === "SUPER_ADMIN") return true;
 
-  return roleHierarchy[userRole] >= roleHierarchy[requiredRole];
+  switch (actionDomain) {
+    case "universities":
+    case "programmes":
+    case "broadcast":
+      return userRole === "RADIO_ADMIN";
+    case "analytics":
+      return userRole === "RADIO_ADMIN" || userRole === "EDITOR";
+    case "news":
+      return userRole === "RADIO_ADMIN" || userRole === "EDITOR";
+    case "users":
+    case "settings":
+      return false;
+    default:
+      return false;
+  }
 }

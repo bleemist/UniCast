@@ -24,7 +24,7 @@ model Presenter {
   id          String      @id @default(uuid())
   name        String
   slug        String      @unique
-  roleTitle   String      // e.g. "Senior Radio Host & DJ"
+  roleTitle   String      // e.g. "Lead Campus Presenter & DJ"
   bio         String
   avatar      String
   socialLinks String?     // JSON string { twitter, instagram, linkedin }
@@ -46,19 +46,20 @@ model ProgrammeCategory {
 }
 
 model Programme {
-  id          String            @id @default(uuid())
-  title       String
-  slug        String            @unique
-  tagline     String
-  description String
-  coverImage  String
-  categoryId  String
-  category    ProgrammeCategory @relation(fields: [categoryId], references: [id])
-  presenterId String
-  presenter   Presenter         @relation(fields: [presenterId], references: [id])
-  schedules   Schedule[]
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  id             String            @id @default(uuid())
+  title          String
+  slug           String            @unique
+  tagline        String
+  description    String
+  coverImage     String
+  categoryId     String
+  category       ProgrammeCategory @relation(fields: [categoryId], references: [id])
+  presenterId    String
+  presenter      Presenter         @relation(fields: [presenterId], references: [id])
+  schedules      Schedule[]
+  listenerEvents ListenerEvent[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
 }
 
 model Schedule {
@@ -161,16 +162,69 @@ model ContactMessage {
 
 model RadioSetting {
   id                   String   @id @default("station_settings")
-  stationName          String   @default("Kyambogo Radio")
-  tagline              String   @default("The Voice of Kyambogo University")
-  frequency            String   @default("107.4 FM & Online")
-  streamUrl            String   @default("https://stream.zeno.fm/f3wvbbqmdg8uv") // Default high-availability live stream mount point
+  stationName          String   @default("UniCast")
+  tagline              String   @default("Your Campus Pulse")
+  frequency            String   @default("Online Radio Network")
+  streamUrl            String   @default("https://stream.zeno.fm/f3wvbbqmdg8uv")
   fallbackStreamUrl    String?
   isLiveManualOverride Boolean  @default(false)
-  contactEmail         String   @default("radio@kyu.ac.ug")
+  contactEmail         String   @default("contact@unicast.radio")
   contactPhone         String   @default("+256 700 000000")
   socialLinks          String?  // JSON string
   updatedAt            DateTime @updatedAt
+}
+
+model University {
+  id               String            @id @default(uuid())
+  name             String            @unique
+  shortName        String?
+  location         String?
+  country          String            @default("Uganda")
+  isActive         Boolean           @default(true)
+  listenerSessions ListenerSession[]
+  listenerEvents   ListenerEvent[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+}
+
+model ListenerSession {
+  id                  String          @id @default(uuid())
+  anonymousListenerId String
+  universityId        String?
+  university          University?     @relation(fields: [universityId], references: [id], onDelete: SetNull)
+  sessionStartedAt    DateTime        @default(now())
+  lastSeenAt          DateTime        @default(now())
+  sessionDuration     Int             @default(0) // seconds
+  deviceType          String?         // mobile, tablet, desktop
+  browser             String?
+  events              ListenerEvent[]
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  @@index([anonymousListenerId])
+  @@index([universityId])
+  @@index([sessionStartedAt])
+  @@index([lastSeenAt])
+}
+
+model ListenerEvent {
+  id                  String           @id @default(uuid())
+  anonymousListenerId String
+  sessionId           String?
+  session             ListenerSession? @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  universityId        String?
+  university          University?      @relation(fields: [universityId], references: [id], onDelete: SetNull)
+  programmeId         String?
+  programme           Programme?       @relation(fields: [programmeId], references: [id], onDelete: SetNull)
+  eventType           String           // LISTEN_STARTED, LISTEN_PAUSED, LISTEN_RESUMED, LISTEN_STOPPED, LISTEN_SESSION_STARTED, LISTEN_SESSION_ENDED, PROGRAMME_VIEWED, PODCAST_PLAYED, NEWS_VIEWED, REQUEST_SUBMITTED, UNIVERSITY_SELECTED
+  timestamp           DateTime         @default(now())
+  metadata            String?          // JSON string
+  createdAt           DateTime         @default(now())
+
+  @@index([eventType])
+  @@index([timestamp])
+  @@index([universityId])
+  @@index([programmeId])
 }
 
 model ListenerPing {

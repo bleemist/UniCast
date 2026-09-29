@@ -3,8 +3,15 @@ import { Music, Radio, CheckCircle2, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { SongRequestForm } from "./SongRequestForm";
+import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Song Requests & Shoutouts | UniCast",
+  description:
+    "Request your favourite song or send a campus dedication live on UniCast — Your Campus Pulse.",
+};
 
 export default async function RequestsPage() {
   const recentRequests = await prisma.songRequest.findMany({
@@ -27,7 +34,7 @@ export default async function RequestsPage() {
           Song Requests & Live Dedications
         </h1>
         <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
-          Direct line to the DJ booth! Submit your favorite track and message to be broadcast live on 107.4 FM.
+          Direct line to the UniCast studio booth! Submit your favourite track and cross-campus dedication to be aired live nationwide.
         </p>
       </div>
 
@@ -40,12 +47,12 @@ export default async function RequestsPage() {
                 <CardTitle className="text-lg text-white">
                   Send Your Request to the Studio
                 </CardTitle>
-                <Badge variant="gold" size="sm">
+                <Badge variant="live" size="sm">
                   ON-AIR QUEUE
                 </Badge>
               </div>
               <CardDescription className="text-xs">
-                Fill in your details below. Your request will appear directly on the presenter’s console.
+                Fill in your track title and dedication. Your request will appear directly on the presenter’s console.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6">
@@ -65,7 +72,7 @@ export default async function RequestsPage() {
                 </CardTitle>
               </div>
               <CardDescription className="text-xs">
-                Recent songs approved and spun by Kyambogo Radio presenters.
+                Recent songs approved and spun by UniCast on-air presenters.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-5 space-y-3">
@@ -112,7 +119,7 @@ export default async function RequestsPage() {
               <span>Campus Privacy Shield</span>
             </div>
             <p className="text-[11px] leading-relaxed">
-              We never collect or display your personal telephone numbers or passwords publicly.
+              We never collect or display your telephone numbers, student logins, or private emails publicly.
               All song requests are reviewed in studio for appropriate language.
             </p>
           </div>

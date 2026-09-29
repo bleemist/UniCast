@@ -1,32 +1,27 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { AudioPlayerProvider } from "@/components/audio/AudioPlayerContext";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-});
-
 export const metadata: Metadata = {
   title: {
-    default: "Kyambogo Radio 107.4 FM | The Voice of Kyambogo University",
-    template: "%s | Kyambogo Radio 107.4 FM",
+    default: "UniCast | Your Campus Pulse",
+    template: "%s | UniCast Radio",
   },
   description:
-    "Listen live to Kyambogo University Online Radio (107.4 FM). Student news, campus shows, sports, technology, and university broadcasts.",
+    "UniCast is the single online university radio platform connecting students across universities. One Radio. Every Campus. Live shows, student talk, varsity sports, and music.",
   keywords: [
-    "Kyambogo Radio",
-    "Kyambogo University",
-    "Campus Radio Uganda",
-    "107.4 FM",
-    "University Online Radio",
-    "Student Radio Kampala",
+    "UniCast",
+    "Your Campus Pulse",
+    "University Radio",
+    "Campus Radio",
+    "Uganda Campus Radio",
+    "East Africa Student Radio",
+    "Online University Radio",
+    "Student Radio Station",
   ],
-  authors: [{ name: "Kyambogo University Media & ICT" }],
-  creator: "Kyambogo University Radio",
-  publisher: "Kyambogo University",
+  authors: [{ name: "UniCast Media Network" }],
+  creator: "UniCast Radio",
+  publisher: "UniCast",
   robots: {
     index: true,
     follow: true,
@@ -34,24 +29,24 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_UG",
-    url: "https://radio.kyu.ac.ug",
-    siteName: "Kyambogo Radio 107.4 FM",
-    title: "Kyambogo Radio 107.4 FM | The Voice of Kyambogo University",
+    url: "https://unicast.radio",
+    siteName: "UniCast — Your Campus Pulse",
+    title: "UniCast | Your Campus Pulse",
     description:
-      "Listen live to Kyambogo University Online Radio. Stream live campus shows, request songs, and access recorded podcasts.",
+      "One Radio. Every Campus. Listen live to UniCast, submit song requests, and tune in to cross-campus podcasts.",
     images: [
       {
         url: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&h=630&fit=crop&q=80",
         width: 1200,
         height: 630,
-        alt: "Kyambogo Radio Studio",
+        alt: "UniCast Live Radio Studio",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kyambogo Radio 107.4 FM",
-    description: "The Voice of Kyambogo University - Live on 107.4 FM & Online",
+    title: "UniCast | Your Campus Pulse",
+    description: "One Radio. Every Campus. Live student radio streaming across universities.",
   },
   icons: {
     icon: "/favicon.ico",
@@ -72,7 +67,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en">
       <body className="bg-navy-900 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-radio-500/30 selection:text-white">
         <AudioPlayerProvider>
           {children}

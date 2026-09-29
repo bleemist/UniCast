@@ -5,8 +5,15 @@ import { Calendar, Clock, Mic, Radio } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
 import { ScheduleFilterTabs } from "./ScheduleFilterTabs";
+import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Broadcast Schedule | UniCast",
+  description:
+    "Explore the complete 7-day broadcast schedule for UniCast. One shared timetable across universities.",
+};
 
 export default async function SchedulePage() {
   const schedules = await prisma.schedule.findMany({
@@ -37,7 +44,7 @@ export default async function SchedulePage() {
           Broadcast Schedule
         </h1>
         <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
-          Explore our weekly timetable across all faculties. Tune in live on 107.4 FM or listen online.
+          Explore our single weekly timetable broadcasting live to students across all university campuses.
         </p>
       </div>
 

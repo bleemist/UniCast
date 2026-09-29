@@ -19,6 +19,34 @@ export interface UserSession {
   avatar?: string | null;
 }
 
+export interface UniversityItem {
+  id: string;
+  name: string;
+  shortName?: string | null;
+  location?: string | null;
+  country: string;
+  isActive: boolean;
+  listenerCount?: number;
+  sessionCount?: number;
+  totalDurationSeconds?: number;
+  avgDurationMinutes?: number;
+  lastActivity?: string | Date | null;
+  createdAt: string | Date;
+}
+
+export type EventType =
+  | "LISTEN_STARTED"
+  | "LISTEN_PAUSED"
+  | "LISTEN_RESUMED"
+  | "LISTEN_STOPPED"
+  | "LISTEN_SESSION_STARTED"
+  | "LISTEN_SESSION_ENDED"
+  | "PROGRAMME_VIEWED"
+  | "PODCAST_PLAYED"
+  | "NEWS_VIEWED"
+  | "REQUEST_SUBMITTED"
+  | "UNIVERSITY_SELECTED";
+
 export interface ProgrammeWithRelations {
   id: string;
   title: string;
@@ -132,6 +160,7 @@ export interface ArticleItem {
   excerpt: string;
   content: string;
   coverImage: string;
+  categoryId: string;
   category: {
     name: string;
     slug: string;
@@ -165,7 +194,14 @@ export interface TrackMetadata {
   audioUrl: string;
 }
 
-export type AudioPlaybackState = "idle" | "loading" | "playing" | "paused" | "error";
+export type AudioPlaybackState =
+  | "idle"
+  | "loading"
+  | "playing"
+  | "buffering"
+  | "paused"
+  | "offline"
+  | "error";
 
 export interface AudioPlayerContextType {
   state: AudioPlaybackState;
@@ -176,6 +212,7 @@ export interface AudioPlayerContextType {
   volume: number;
   isMuted: boolean;
   streamOnline: boolean;
+  currentProgrammeTitle?: string;
   playLiveStream: () => void;
   playTrack: (track: TrackMetadata) => void;
   pause: () => void;
@@ -183,4 +220,34 @@ export interface AudioPlayerContextType {
   setVolume: (val: number) => void;
   toggleMute: () => void;
   checkStreamStatus: () => Promise<boolean>;
+}
+
+export interface ListenerOverviewAnalytics {
+  activeListeners: number;
+  totalListeners: number;
+  totalSessions: number;
+  avgSessionDurationSeconds: number;
+  universitiesReached: number;
+  universityAudience: {
+    universityId: string;
+    universityName: string;
+    shortName: string | null;
+    listeners: number;
+    sessions: number;
+    avgDurationMinutes: number;
+    percentage: number;
+    lastSeenAt?: string | null;
+  }[];
+  listeningTrends: {
+    label: string;
+    sessions: number;
+    listeners: number;
+  }[];
+  programmeAnalytics: {
+    programmeId: string;
+    title: string;
+    listeners: number;
+    sessions: number;
+    avgDurationMinutes: number;
+  }[];
 }
