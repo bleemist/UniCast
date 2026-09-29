@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #06B6D4;
+  --color-primary-dark: #0891B2;
+  --color-accent-gold: #F59E0B;
+  --color-live: #EF4444;
+  --color-online: #10B981;
+  --bg-deep: #060911;
+  --bg-navy: #0A0F1D;
+  --bg-surface: #111A30;
+  --border-subtle: #1D2D52;
+}
+
+@layer base {
+  * {
+    border-color: #1D2D52;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: #0A0F1D;
+    color: #F8FAFC;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* Sleek custom dark scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0A0F1D;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1D2D52;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2B3F6E;
+}
+
+/* Subtle glow effects */
+.glow-radio {
+  box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.25);
+}
+
+.glow-live {
+  box-shadow: 0 0 25px -4px rgba(239, 68, 68, 0.4);
+}
+
+.glow-gold {
+  box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.25);
+}
+
+/* Audio wave animation container */
+.equalizer-bar {
+  display: inline-block;
+  width: 3px;
+  background-color: #06B6D4;
+  border-radius: 2px;
+  margin: 0 1.5px;
+  transition: height 0.15s ease;
+}
+
+/* Interactive touch target min size */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Selection highlight */
+::selection {
+  background-color: rgba(6, 182, 212, 0.3);
+  color: #FFFFFF;
+}
