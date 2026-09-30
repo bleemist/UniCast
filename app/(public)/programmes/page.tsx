@@ -15,21 +15,29 @@ export const metadata: Metadata = {
 };
 
 export default async function ProgrammesPage() {
-  const [programmes, categories] = await Promise.all([
-    prisma.programme.findMany({
-      include: {
-        category: true,
-        presenter: true,
-        schedules: {
-          orderBy: { startTime: "asc" },
+  let programmes: any[] = [];
+  let categories: any[] = [];
+
+  try {
+    [programmes, categories] = await Promise.all([
+      prisma.programme.findMany({
+        where: { isArchived: false },
+        include: {
+          category: true,
+          presenter: true,
+          schedules: {
+            orderBy: { startTime: "asc" },
+          },
         },
-      },
-      orderBy: { title: "asc" },
-    }),
-    prisma.programmeCategory.findMany({
-      orderBy: { name: "asc" },
-    }),
-  ]);
+        orderBy: { title: "asc" },
+      }),
+      prisma.programmeCategory.findMany({
+        orderBy: { name: "asc" },
+      }),
+    ]);
+  } catch (error) {
+    console.warn("Could not load programmes data:", error);
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-14 space-y-12">

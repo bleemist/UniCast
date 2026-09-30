@@ -1,1 +1,5 @@
-export { default, metadata } from "../requests/page";
+import { redirect } from "next/navigation";
+
+export default function RequestRedirectPage() {
+  redirect("/requests");
+}

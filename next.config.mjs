@@ -1,3 +1,7 @@
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = "file:./prisma/dev.db";
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -12,6 +16,15 @@ const nextConfig = {
         hostname: "via.placeholder.com",
       },
     ],
+  },
+  async redirects() {
+    return [
+      {
+        source: "/request",
+        destination: "/requests",
+        permanent: true,
+      },
+    ];
   },
 };
 

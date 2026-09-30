@@ -16,19 +16,24 @@ export const metadata: Metadata = {
 };
 
 export default async function SchedulePage() {
-  const schedules = await prisma.schedule.findMany({
-    include: {
-      programme: {
-        include: {
-          presenter: true,
-          category: true,
+  let schedules: any[] = [];
+  try {
+    schedules = await prisma.schedule.findMany({
+      include: {
+        programme: {
+          include: {
+            presenter: true,
+            category: true,
+          },
         },
       },
-    },
-    orderBy: {
-      startTime: "asc",
-    },
-  });
+      orderBy: {
+        startTime: "asc",
+      },
+    });
+  } catch (error) {
+    console.warn("Could not load schedule data:", error);
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-14 space-y-10">

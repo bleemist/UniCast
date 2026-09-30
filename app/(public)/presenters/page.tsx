@@ -15,13 +15,18 @@ export const metadata: Metadata = {
 };
 
 export default async function PresentersPage() {
-  const presenters = await prisma.presenter.findMany({
-    where: { isActive: true },
-    include: {
-      programmes: true,
-    },
-    orderBy: { name: "asc" },
-  });
+  let presenters: any[] = [];
+  try {
+    presenters = await prisma.presenter.findMany({
+      where: { isActive: true, isArchived: false },
+      include: {
+        programmes: true,
+      },
+      orderBy: { name: "asc" },
+    });
+  } catch (error) {
+    console.warn("Could not load presenters data:", error);
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-14 space-y-10">
@@ -80,7 +85,7 @@ export default async function PresentersPage() {
                         Assigned Programmes:
                       </span>
                       <div className="flex flex-wrap gap-1.5">
-                        {pres.programmes.map((prog) => (
+                        {pres.programmes.map((prog: any) => (
                           <span
                             key={prog.id}
                             className="px-2.5 py-1 rounded-md text-xs bg-navy-900 border border-navy-700 text-slate-200"

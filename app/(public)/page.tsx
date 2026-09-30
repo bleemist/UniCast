@@ -21,38 +21,48 @@ import { HomeLivePlayerHero } from "@/components/home/HomeLivePlayerHero";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  // Fetch real programmes, schedules, and presenters from database
-  const [programmes, schedules, presenters, podcasts, latestRequests] =
-    await Promise.all([
-      prisma.programme.findMany({
-        include: { category: true, presenter: true },
-        take: 4,
-      }),
-      prisma.schedule.findMany({
-        where: { dayOfWeek: "MONDAY" }, // default weekday lineup
-        include: {
-          programme: {
-            include: { presenter: true, category: true },
+  let programmes: any[] = [];
+  let schedules: any[] = [];
+  let presenters: any[] = [];
+  let podcasts: any[] = [];
+  let latestRequests: any[] = [];
+
+  try {
+    [programmes, schedules, presenters, podcasts, latestRequests] =
+      await Promise.all([
+        prisma.programme.findMany({
+          where: { isArchived: false },
+          include: { category: true, presenter: true },
+          take: 4,
+        }),
+        prisma.schedule.findMany({
+          where: { dayOfWeek: "MONDAY" }, // default weekday lineup
+          include: {
+            programme: {
+              include: { presenter: true, category: true },
+            },
           },
-        },
-        orderBy: { startTime: "asc" },
-      }),
-      prisma.presenter.findMany({
-        where: { isActive: true },
-        take: 4,
-      }),
-      prisma.podcast.findMany({
-        where: { isPublished: true },
-        include: { presenter: true, category: true },
-        take: 2,
-        orderBy: { publishedAt: "desc" },
-      }),
-      prisma.songRequest.findMany({
-        where: { status: { in: ["APPROVED", "PLAYED"] } },
-        take: 3,
-        orderBy: { updatedAt: "desc" },
-      }),
-    ]);
+          orderBy: { startTime: "asc" },
+        }),
+        prisma.presenter.findMany({
+          where: { isActive: true, isArchived: false },
+          take: 4,
+        }),
+        prisma.podcast.findMany({
+          where: { isPublished: true, isArchived: false },
+          include: { presenter: true, category: true },
+          take: 2,
+          orderBy: { publishedAt: "desc" },
+        }),
+        prisma.songRequest.findMany({
+          where: { status: { in: ["APPROVED", "PLAYED"] } },
+          take: 3,
+          orderBy: { updatedAt: "desc" },
+        }),
+      ]);
+  } catch (err) {
+    console.warn("Could not query database on homepage:", err);
+  }
 
   const currentShow = programmes[0] || null;
 

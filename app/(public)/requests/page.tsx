@@ -14,11 +14,16 @@ export const metadata: Metadata = {
 };
 
 export default async function RequestsPage() {
-  const recentRequests = await prisma.songRequest.findMany({
-    where: { status: { in: ["APPROVED", "PLAYED"] } },
-    take: 8,
-    orderBy: { updatedAt: "desc" },
-  });
+  let recentRequests: any[] = [];
+  try {
+    recentRequests = await prisma.songRequest.findMany({
+      where: { status: { in: ["APPROVED", "PLAYED"] } },
+      take: 8,
+      orderBy: { updatedAt: "desc" },
+    });
+  } catch (error) {
+    console.warn("Could not load recent song requests:", error);
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-14 space-y-12">
