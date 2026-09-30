@@ -32,7 +32,10 @@ export function AudioPlayerProvider({
   const [volume, setVolumeState] = React.useState<number>(0.85);
   const [isMuted, setIsMuted] = React.useState<boolean>(false);
   const [streamOnline, setStreamOnline] = React.useState<boolean>(true);
+  const [activeStreamUrl, setActiveStreamUrl] = React.useState<string>(DEFAULT_STREAM_URL);
   const [currentProgrammeTitle, setCurrentProgrammeTitle] = React.useState<string>("Morning Campus Pulse");
+  const [isNetworkOffline, setIsNetworkOffline] = React.useState<boolean>(false);
+
   const [currentTrack, setCurrentTrack] = React.useState<TrackMetadata | null>({
     title: STATION_NAME,
     subtitle: STATION_TAGLINE,
@@ -41,13 +44,16 @@ export function AudioPlayerProvider({
     artwork: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=512&q=80",
   });
 
-  // Check stream status
+  // Check stream status from API
   const checkStreamStatus = React.useCallback(async (): Promise<boolean> => {
     try {
       const res = await fetch("/api/stream/status", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         setStreamOnline(data.isOnline);
+        if (data.streamUrl) {
+          setActiveStreamUrl(data.streamUrl);
+        }
         return data.isOnline;
       }
       return true;
@@ -67,7 +73,6 @@ export function AudioPlayerProvider({
   // Start heartbeat timer (pings every 30 seconds while playing)
   const startHeartbeat = React.useCallback(() => {
     stopHeartbeat();
-    // Immediate initial heartbeat ping
     sendListenerHeartbeat(undefined, 10);
     heartbeatTimerRef.current = setInterval(() => {
       sendListenerHeartbeat(undefined, 30);
@@ -103,7 +108,7 @@ export function AudioPlayerProvider({
     []
   );
 
-  // Initialize Audio Element
+  // Initialize Audio Element and Network listeners
   React.useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -135,6 +140,23 @@ export function AudioPlayerProvider({
     audio.addEventListener("pause", handlePause);
     audio.addEventListener("error", handleError);
 
+    // Network offline/online listeners
+    const handleOnline = () => {
+      setIsNetworkOffline(false);
+      checkStreamStatus();
+    };
+    const handleOffline = () => {
+      setIsNetworkOffline(true);
+      if (state === "playing") {
+        audio.pause();
+        setState("offline");
+        stopHeartbeat();
+      }
+    };
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
     // Initial stream health check
     checkStreamStatus();
     const interval = setInterval(checkStreamStatus, 45000);
@@ -142,6 +164,8 @@ export function AudioPlayerProvider({
     return () => {
       clearInterval(interval);
       stopHeartbeat();
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
       audio.removeEventListener("waiting", handleWaiting);
       audio.removeEventListener("canplay", handleCanPlay);
       audio.removeEventListener("playing", handlePlaying);
@@ -153,11 +177,17 @@ export function AudioPlayerProvider({
   }, [checkStreamStatus, startHeartbeat, stopHeartbeat]);
 
   const playLiveStream = React.useCallback(() => {
+    if (!navigator.onLine) {
+      setIsNetworkOffline(true);
+      setState("offline");
+      return;
+    }
+
     const liveTrack: TrackMetadata = {
       title: `${STATION_NAME} • Live Broadcast`,
       subtitle: STATION_TAGLINE,
       isLive: true,
-      audioUrl: DEFAULT_STREAM_URL,
+      audioUrl: activeStreamUrl,
       artwork: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=512&q=80",
     };
 
@@ -166,8 +196,7 @@ export function AudioPlayerProvider({
 
     if (audioRef.current) {
       setState("loading");
-      // Cache buster for live stream mount point
-      const streamSrc = `${DEFAULT_STREAM_URL}${DEFAULT_STREAM_URL.includes("?") ? "&" : "?"}ts=${Date.now()}`;
+      const streamSrc = `${activeStreamUrl}${activeStreamUrl.includes("?") ? "&" : "?"}ts=${Date.now()}`;
       audioRef.current.src = streamSrc;
       audioRef.current
         .play()
@@ -177,14 +206,20 @@ export function AudioPlayerProvider({
           startHeartbeat();
         })
         .catch((e) => {
-          console.warn("Audio play blocked or offline:", e);
+          console.warn("Audio play blocked or stream offline:", e);
           setState("error");
         });
     }
-  }, [startHeartbeat, updateMediaSession]);
+  }, [activeStreamUrl, startHeartbeat, updateMediaSession]);
 
   const playTrack = React.useCallback(
     (track: TrackMetadata) => {
+      if (!navigator.onLine) {
+        setIsNetworkOffline(true);
+        setState("offline");
+        return;
+      }
+
       setCurrentTrack(track);
       updateMediaSession(track);
 
@@ -274,6 +309,11 @@ export function AudioPlayerProvider({
 
   return (
     <AudioPlayerContext.Provider value={value}>
+      {isNetworkOffline && (
+        <div className="bg-amber-600/90 text-white text-xs font-semibold px-4 py-2 text-center sticky top-0 z-50 flex items-center justify-center gap-2 shadow-md">
+          <span>You're offline. Live radio requires an active internet connection.</span>
+        </div>
+      )}
       {children}
     </AudioPlayerContext.Provider>
   );

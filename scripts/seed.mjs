@@ -529,6 +529,21 @@ Featured on UniCast's Tech Nexus show, project leads shared how cross-university
     }
   }
 
+  // 11. Genesis Audit Log
+  const existingAudit = await prisma.auditLog.count();
+  if (existingAudit === 0) {
+    await prisma.auditLog.create({
+      data: {
+        userId: adminUser.id,
+        userEmail: adminUser.email,
+        action: "SYSTEM_INITIALIZE",
+        resource: "System",
+        details: JSON.stringify({ message: "UniCast platform initial seed and security setup verified" }),
+        ipAddress: "127.0.0.1",
+      },
+    });
+  }
+
   console.log("🎉 UniCast successfully seeded with complete universities roster, programmes, and verified analytics!");
 }
 

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "@/lib/auth";
+import { getServerSession, hasPermission } from "@/lib/auth";
+import { createAuditLog } from "@/lib/audit";
+import { getClientIp } from "@/lib/rateLimit";
 
 export async function PATCH(
   req: Request,
@@ -12,7 +14,19 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    if (!hasPermission(session.role, "requests")) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const { status, adminNote } = await req.json();
+
+    const existing = await prisma.songRequest.findUnique({
+      where: { id: params.id },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Request not found" }, { status: 404 });
+    }
 
     const updated = await prisma.songRequest.update({
       where: { id: params.id },
@@ -20,6 +34,15 @@ export async function PATCH(
         ...(status && { status }),
         ...(adminNote !== undefined && { adminNote }),
       },
+    });
+
+    await createAuditLog({
+      userId: session.id,
+      userEmail: session.email,
+      action: "UPDATE_REQUEST_STATUS",
+      resource: "SongRequest",
+      details: { requestId: params.id, oldStatus: existing.status, newStatus: status, song: existing.songTitle },
+      ipAddress: getClientIp(req),
     });
 
     return NextResponse.json({ success: true, request: updated });
@@ -42,9 +65,28 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    await prisma.songRequest.delete({
+    if (!hasPermission(session.role, "requests")) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const existing = await prisma.songRequest.findUnique({
       where: { id: params.id },
     });
+
+    if (existing) {
+      await prisma.songRequest.delete({
+        where: { id: params.id },
+      });
+
+      await createAuditLog({
+        userId: session.id,
+        userEmail: session.email,
+        action: "DELETE_REQUEST",
+        resource: "SongRequest",
+        details: { requestId: params.id, song: existing.songTitle, artist: existing.artist },
+        ipAddress: getClientIp(req),
+      });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

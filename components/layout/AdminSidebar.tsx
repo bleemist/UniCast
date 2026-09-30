@@ -79,6 +79,7 @@ const ADMIN_NAV_GROUPS: NavGroup[] = [
     label: "ADMINISTRATION",
     items: [
       { href: "/admin/users", label: "Users & Roles", icon: Users },
+      { href: "/admin/audit", label: "Security & Audit Logs", icon: Activity },
       { href: "/admin/settings", label: "Station Settings", icon: Settings },
     ],
   },

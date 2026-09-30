@@ -28,6 +28,8 @@ export function getSelectedUniversity(): { id: string; name: string } | null {
   return null;
 }
 
+export const getStoredUniversity = getSelectedUniversity;
+
 export function setSelectedUniversity(id: string, name: string): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(STORAGE_KEY_UNI_ID, id);

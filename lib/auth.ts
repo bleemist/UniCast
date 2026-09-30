@@ -27,24 +27,44 @@ export async function getServerSession(): Promise<UserSession | null> {
   return verifyToken(token);
 }
 
+export type ActionDomain =
+  | "universities"
+  | "programmes"
+  | "schedules"
+  | "presenters"
+  | "podcasts"
+  | "requests"
+  | "news"
+  | "users"
+  | "settings"
+  | "broadcast"
+  | "analytics"
+  | "audit";
+
 export function hasPermission(
   userRole: Role,
-  actionDomain: "universities" | "programmes" | "news" | "users" | "settings" | "broadcast" | "analytics"
+  actionDomain: ActionDomain
 ): boolean {
   if (userRole === "SUPER_ADMIN") return true;
 
   switch (actionDomain) {
     case "universities":
     case "programmes":
-    case "broadcast":
+    case "schedules":
+    case "presenters":
+    case "podcasts":
       return userRole === "RADIO_ADMIN";
+    case "requests":
+    case "broadcast":
+      return userRole === "RADIO_ADMIN" || userRole === "PRESENTER";
     case "analytics":
       return userRole === "RADIO_ADMIN" || userRole === "EDITOR";
     case "news":
       return userRole === "RADIO_ADMIN" || userRole === "EDITOR";
     case "users":
     case "settings":
-      return false;
+    case "audit":
+      return false; // only SUPER_ADMIN
     default:
       return false;
   }

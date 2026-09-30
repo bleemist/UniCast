@@ -1,11 +1,11 @@
 {
-  "name": "Kyambogo Radio 107.4 FM",
-  "short_name": "KYU Radio",
-  "description": "The Voice of Kyambogo University - Live on 107.4 FM and Online",
+  "name": "UniCast — Your Campus Pulse",
+  "short_name": "UniCast",
+  "description": "The unified university radio platform. Live broadcasts, student talk, news, and campus culture across all universities.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0A0F1D",
-  "theme_color": "#0A0F1D",
+  "background_color": "#050814",
+  "theme_color": "#06b6d4",
   "orientation": "portrait-primary",
   "icons": [
     {
