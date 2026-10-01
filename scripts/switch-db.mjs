@@ -1,13 +1,25 @@
 import fs from "fs";
 import path from "path";
 
-const target = process.argv[2]?.toLowerCase();
-if (!target || !["sqlite", "postgresql", "postgres"].includes(target)) {
+let target = process.argv[2]?.toLowerCase();
+
+if (!target) {
+  const dbUrl = process.env.DATABASE_URL || "";
+  if (dbUrl.startsWith("postgres://") || dbUrl.startsWith("postgresql://")) {
+    target = "postgresql";
+  } else if (dbUrl.startsWith("mysql://")) {
+    target = "mysql";
+  } else {
+    target = "sqlite";
+  }
+}
+
+if (!["sqlite", "postgresql", "postgres", "mysql"].includes(target)) {
   console.log("Usage: node scripts/switch-db.mjs [sqlite|postgresql]");
   process.exit(1);
 }
 
-const provider = target === "sqlite" ? "sqlite" : "postgresql";
+const provider = target === "sqlite" ? "sqlite" : (target === "mysql" ? "mysql" : "postgresql");
 const schemaPath = path.join(process.cwd(), "prisma", "schema.prisma");
 
 let schema = fs.readFileSync(schemaPath, "utf-8");
@@ -17,4 +29,4 @@ schema = schema.replace(
 );
 
 fs.writeFileSync(schemaPath, schema, "utf-8");
-console.log(`✅ Successfully switched Prisma provider to: "${provider}"`);
+console.log(`✅ Successfully set Prisma provider to: "${provider}"`);

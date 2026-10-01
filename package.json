@@ -4,14 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "node scripts/switch-db.mjs && prisma generate && node scripts/sync-db.mjs && next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate",
-    "prisma:generate": "prisma generate",
+    "postinstall": "node scripts/switch-db.mjs && prisma generate",
+    "prisma:generate": "node scripts/switch-db.mjs && prisma generate",
     "prisma:push": "prisma db push",
     "prisma:seed": "node scripts/seed.mjs",
-    "render:build": "prisma generate && prisma db push && node scripts/seed.mjs && next build"
+    "render:build": "node scripts/switch-db.mjs && prisma generate && prisma db push --accept-data-loss && node scripts/seed.mjs && next build"
   },
   "dependencies": {
     "@prisma/client": "^5.21.1",
