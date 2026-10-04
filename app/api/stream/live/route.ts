@@ -48,12 +48,15 @@ export async function GET(req: Request) {
         "Pragma": "no-cache",
         "Expires": "0",
         "Connection": "keep-alive",
-        "X-Accel-Buffering": "no", // Disable buffering in Nginx/proxies
+        "X-Accel-Buffering": "no",
       },
     });
   }
 
-  // Otherwise, redirect or fallback to the automated campus radio stream
+  // No presenter is broadcasting — return a JSON response with the automated stream URL.
+  // The client-side player already uses the direct Zeno.fm URL from /api/stream/status,
+  // so this endpoint should NOT be called when no presenter is live.
+  // Return 200 with a fallback URL instead of a 307 redirect to avoid 400/CORS issues.
   let streamUrl = DEFAULT_STREAM_URL;
   try {
     const setting = await prisma.radioSetting.findUnique({
@@ -64,5 +67,12 @@ export async function GET(req: Request) {
     // fallback
   }
 
-  return NextResponse.redirect(streamUrl, 307);
+  return NextResponse.json(
+    {
+      live: false,
+      message: "No presenter is currently broadcasting",
+      automatedStreamUrl: streamUrl,
+    },
+    { status: 200 }
+  );
 }

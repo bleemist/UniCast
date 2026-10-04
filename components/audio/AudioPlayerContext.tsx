@@ -32,8 +32,8 @@ export function AudioPlayerProvider({
 }) {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const heartbeatTimerRef = React.useRef<NodeJS.Timeout | null>(null);
-  const rtcPeerRef = React.useRef<RTCPeerConnection | null>(null);
-  const rtcAudioRef = React.useRef<HTMLAudioElement | null>(null);
+  const playPromiseRef = React.useRef<Promise<void> | null>(null);
+  const isSwitchingRef = React.useRef<boolean>(false);
 
   const [state, setState] = React.useState<AudioPlaybackState>("idle");
   const [volume, setVolumeState] = React.useState<number>(0.85);
@@ -58,6 +58,41 @@ export function AudioPlayerProvider({
 
   // Track the previous isLivePresenter to trigger seamless auto-transition
   const prevLivePresenterRef = React.useRef<boolean>(false);
+  const stateRef = React.useRef<AudioPlaybackState>("idle");
+  stateRef.current = state;
+
+  /**
+   * Safely play audio, guarding against the AbortError race condition.
+   * Returns true if play succeeded, false otherwise.
+   */
+  const safePlay = React.useCallback(async (audio: HTMLAudioElement): Promise<boolean> => {
+    // If a previous play() is still pending, wait for it to settle first
+    if (playPromiseRef.current) {
+      try {
+        await playPromiseRef.current;
+      } catch {
+        // previous play was aborted or errored — that's fine
+      }
+      playPromiseRef.current = null;
+    }
+
+    try {
+      const promise = audio.play();
+      playPromiseRef.current = promise;
+      await promise;
+      playPromiseRef.current = null;
+      return true;
+    } catch (e: unknown) {
+      playPromiseRef.current = null;
+      const errorName = e instanceof Error ? e.name : "";
+      // AbortError means play was interrupted (e.g. by pause or new src) — not a real error
+      if (errorName === "AbortError") {
+        return false;
+      }
+      console.warn("Audio play failed:", e);
+      return false;
+    }
+  }, []);
 
   // Check stream status from API and detect presenter on-air changes
   const checkStreamStatus = React.useCallback(async (): Promise<boolean> => {
@@ -72,45 +107,45 @@ export function AudioPlayerProvider({
         if (data.presenterName) {
           setPresenterName(data.presenterName);
         }
-        if (data.automatedStreamUrl) {
-          setAutomatedStreamUrl(data.automatedStreamUrl);
-        }
 
-        const targetStream = liveNow
-          ? "/api/stream/live"
-          : data.automatedStreamUrl || data.streamUrl || DEFAULT_STREAM_URL;
+        const autoUrl = data.automatedStreamUrl || DEFAULT_STREAM_URL;
+        setAutomatedStreamUrl(autoUrl);
 
+        // When no presenter is live, ALWAYS use the direct automated stream URL (Zeno.fm)
+        // Never point at /api/stream/live when not broadcasting — that causes 400/redirect errors
+        const targetStream = liveNow ? "/api/stream/live" : autoUrl;
         setActiveStreamUrl(targetStream);
 
-        // Auto-switch audio if currently playing live radio and presenter state changed
-        if (audioRef.current && (state === "playing" || state === "loading" || state === "buffering")) {
-          if (prevLivePresenterRef.current !== liveNow) {
-            console.log(`🔄 [UniCast Live Stream] Switching from ${prevLivePresenterRef.current ? "Presenter" : "Automatic Music"} to ${liveNow ? "Presenter Live Broadcast" : "Automatic Campus Music"}`);
-            prevLivePresenterRef.current = liveNow;
+        // Auto-switch audio if currently playing and presenter state changed
+        const currentState = stateRef.current;
+        const wasPlaying = currentState === "playing" || currentState === "loading" || currentState === "buffering";
 
-            const updatedTrack: TrackMetadata = {
-              title: liveNow
-                ? `● LIVE: ${data.presenterName || "On Air"}`
-                : `${STATION_NAME} • Live Campus Radio`,
-              subtitle: liveNow
-                ? "Direct Live Studio Broadcast"
-                : STATION_TAGLINE,
-              isLive: true,
-              audioUrl: targetStream,
-              artwork: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=512&q=80",
-            };
+        if (audioRef.current && wasPlaying && prevLivePresenterRef.current !== liveNow && !isSwitchingRef.current) {
+          isSwitchingRef.current = true;
+          console.log(`🔄 [UniCast] Switching to ${liveNow ? "Presenter Live" : "Automatic Music"}`);
+          prevLivePresenterRef.current = liveNow;
 
-            setCurrentTrack(updatedTrack);
-            updateMediaSession(updatedTrack);
+          const updatedTrack: TrackMetadata = {
+            title: liveNow
+              ? `● LIVE: ${data.presenterName || "On Air"}`
+              : `${STATION_NAME} • Live Campus Radio`,
+            subtitle: liveNow
+              ? "Direct Live Studio Broadcast"
+              : STATION_TAGLINE,
+            isLive: true,
+            audioUrl: targetStream,
+            artwork: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=512&q=80",
+          };
 
-            const streamSrc = `${targetStream}${targetStream.includes("?") ? "&" : "?"}ts=${Date.now()}`;
-            audioRef.current.src = streamSrc;
-            audioRef.current
-              .play()
-              .then(() => setState("playing"))
-              .catch(() => {});
-          }
-        } else {
+          setCurrentTrack(updatedTrack);
+          updateMediaSession(updatedTrack);
+
+          const streamSrc = `${targetStream}${targetStream.includes("?") ? "&" : "?"}ts=${Date.now()}`;
+          audioRef.current.src = streamSrc;
+          const ok = await safePlay(audioRef.current);
+          if (ok) setState("playing");
+          isSwitchingRef.current = false;
+        } else if (!wasPlaying) {
           prevLivePresenterRef.current = liveNow;
         }
 
@@ -120,7 +155,7 @@ export function AudioPlayerProvider({
     } catch {
       return true;
     }
-  }, [state]);
+  }, [safePlay]);
 
   // Stop heartbeat timer
   const stopHeartbeat = React.useCallback(() => {
@@ -177,15 +212,10 @@ export function AudioPlayerProvider({
     audio.volume = volume;
     audioRef.current = audio;
 
-    // Secondary audio element for WebRTC VoIP stream
-    const rtcAudio = new Audio();
-    rtcAudio.autoplay = true;
-    rtcAudio.volume = volume;
-    rtcAudioRef.current = rtcAudio;
-
     const handleWaiting = () => setState("buffering");
     const handleCanPlay = () => {
-      if (state === "loading" || state === "buffering") setState("playing");
+      const s = stateRef.current;
+      if (s === "loading" || s === "buffering") setState("playing");
     };
     const handlePlaying = () => {
       setState("playing");
@@ -196,8 +226,12 @@ export function AudioPlayerProvider({
       stopHeartbeat();
     };
     const handleError = () => {
-      setState("error");
-      stopHeartbeat();
+      // Only set error state if we were actually trying to play
+      const s = stateRef.current;
+      if (s === "loading" || s === "playing" || s === "buffering") {
+        setState("error");
+        stopHeartbeat();
+      }
     };
 
     audio.addEventListener("waiting", handleWaiting);
@@ -213,7 +247,8 @@ export function AudioPlayerProvider({
     };
     const handleOffline = () => {
       setIsNetworkOffline(true);
-      if (state === "playing") {
+      const s = stateRef.current;
+      if (s === "playing") {
         audio.pause();
         setState("offline");
         stopHeartbeat();
@@ -223,9 +258,9 @@ export function AudioPlayerProvider({
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
 
-    // Initial stream health check + frequent 4-second polling to immediately catch presenter going on air!
+    // Initial stream health check + 15-second polling (reduced from 4s to avoid race conditions)
     checkStreamStatus();
-    const interval = setInterval(checkStreamStatus, 4000);
+    const interval = setInterval(checkStreamStatus, 15000);
 
     return () => {
       clearInterval(interval);
@@ -239,71 +274,8 @@ export function AudioPlayerProvider({
       audio.removeEventListener("error", handleError);
       audio.pause();
       audio.src = "";
-      if (rtcPeerRef.current) {
-        rtcPeerRef.current.close();
-        rtcPeerRef.current = null;
-      }
     };
   }, [checkStreamStatus, startHeartbeat, stopHeartbeat]);
-
-  // Connect WebRTC VoIP listener for zero-latency direct audio
-  const connectWebRTCListener = React.useCallback(async () => {
-    if (typeof window === "undefined" || !window.RTCPeerConnection) return;
-    try {
-      const pc = new RTCPeerConnection({
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-      });
-      rtcPeerRef.current = pc;
-
-      pc.addTransceiver("audio", { direction: "recvonly" });
-
-      pc.ontrack = (event) => {
-        if (event.streams && event.streams[0] && rtcAudioRef.current) {
-          rtcAudioRef.current.srcObject = event.streams[0];
-          rtcAudioRef.current.play().catch(() => {});
-          // If WebRTC is receiving live presenter voice directly, mute the chunked audio to avoid echo
-          if (audioRef.current) {
-            audioRef.current.muted = true;
-          }
-        }
-      };
-
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-
-      const listenerId = `webrtc_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-      const res = await fetch(`/api/stream/webrtc?action=listener_offer&listenerId=${listenerId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ offer }),
-      });
-
-      if (!res.ok) return;
-
-      // Poll for broadcaster answer
-      let attempts = 0;
-      const pollAnswer = async () => {
-        if (attempts > 8 || !rtcPeerRef.current) return;
-        attempts++;
-        try {
-          const ansRes = await fetch(`/api/stream/webrtc?action=listener_poll_answer&listenerId=${listenerId}`, {
-            method: "POST",
-          });
-          const ansData = await ansRes.json();
-          if (ansData.answer && pc.signalingState !== "closed") {
-            await pc.setRemoteDescription(new RTCSessionDescription(ansData.answer));
-          } else {
-            setTimeout(pollAnswer, 500);
-          }
-        } catch {
-          // fallback
-        }
-      };
-      setTimeout(pollAnswer, 500);
-    } catch {
-      // Fallback: normal /api/stream/live plays
-    }
-  }, []);
 
   const playLiveStream = React.useCallback(async () => {
     if (!navigator.onLine) {
@@ -328,13 +300,15 @@ export function AudioPlayerProvider({
           currentHost = data.presenterName;
           setPresenterName(currentHost);
         }
+        // Use direct stream URL when no presenter is live (avoid /api/stream/live redirect)
         targetStream = livePresenterNow
           ? "/api/stream/live"
           : data.automatedStreamUrl || data.streamUrl || DEFAULT_STREAM_URL;
         setActiveStreamUrl(targetStream);
       }
     } catch {
-      // keep current values
+      // Fall back to the direct automated stream URL
+      targetStream = DEFAULT_STREAM_URL;
     }
 
     const liveTrack: TrackMetadata = {
@@ -357,24 +331,21 @@ export function AudioPlayerProvider({
       audioRef.current.muted = isMuted;
       const streamSrc = `${targetStream}${targetStream.includes("?") ? "&" : "?"}ts=${Date.now()}`;
       audioRef.current.src = streamSrc;
-      audioRef.current
-        .play()
-        .then(() => {
-          setState("playing");
-          recordListenerEvent("LISTEN_STARTED", undefined, { isLive: true, livePresenterNow });
-          startHeartbeat();
 
-          // If presenter is live, also attempt direct WebRTC VoIP connection for instant zero-latency audio
-          if (livePresenterNow) {
-            connectWebRTCListener();
-          }
-        })
-        .catch((e) => {
-          console.warn("Audio play blocked or stream offline:", e);
+      const ok = await safePlay(audioRef.current);
+      if (ok) {
+        setState("playing");
+        recordListenerEvent("LISTEN_STARTED", undefined, { isLive: true, livePresenterNow });
+        startHeartbeat();
+      } else {
+        // Only set error if we're still in loading state (not if user paused)
+        const s = stateRef.current;
+        if (s === "loading") {
           setState("error");
-        });
+        }
+      }
     }
-  }, [activeStreamUrl, connectWebRTCListener, isLivePresenter, isMuted, presenterName, startHeartbeat, updateMediaSession]);
+  }, [activeStreamUrl, isLivePresenter, isMuted, presenterName, safePlay, startHeartbeat, updateMediaSession]);
 
   const playTrack = React.useCallback(
     (track: TrackMetadata) => {
@@ -390,19 +361,21 @@ export function AudioPlayerProvider({
       if (audioRef.current) {
         setState("loading");
         audioRef.current.src = track.audioUrl;
-        audioRef.current
-          .play()
-          .then(() => {
+        safePlay(audioRef.current).then((ok) => {
+          if (ok) {
             setState("playing");
             recordListenerEvent(track.isLive ? "LISTEN_STARTED" : "PODCAST_PLAYED", undefined, {
               title: track.title,
             });
             startHeartbeat();
-          })
-          .catch(() => setState("error"));
+          } else {
+            const s = stateRef.current;
+            if (s === "loading") setState("error");
+          }
+        });
       }
     },
-    [startHeartbeat, updateMediaSession]
+    [safePlay, startHeartbeat, updateMediaSession]
   );
 
   const pause = React.useCallback(() => {
@@ -414,14 +387,6 @@ export function AudioPlayerProvider({
       setState("paused");
       stopHeartbeat();
       recordListenerEvent("LISTEN_PAUSED");
-    }
-    if (rtcAudioRef.current) {
-      rtcAudioRef.current.pause();
-      rtcAudioRef.current.srcObject = null;
-    }
-    if (rtcPeerRef.current) {
-      rtcPeerRef.current.close();
-      rtcPeerRef.current = null;
     }
   }, [currentTrack, stopHeartbeat]);
 
@@ -447,13 +412,9 @@ export function AudioPlayerProvider({
     if (audioRef.current) {
       audioRef.current.volume = clamped;
     }
-    if (rtcAudioRef.current) {
-      rtcAudioRef.current.volume = clamped;
-    }
     if (clamped > 0 && isMuted) {
       setIsMuted(false);
       if (audioRef.current) audioRef.current.muted = false;
-      if (rtcAudioRef.current) rtcAudioRef.current.muted = false;
     }
   }, [isMuted]);
 
@@ -462,9 +423,6 @@ export function AudioPlayerProvider({
     const newMute = !isMuted;
     setIsMuted(newMute);
     audioRef.current.muted = newMute;
-    if (rtcAudioRef.current) {
-      rtcAudioRef.current.muted = newMute;
-    }
   }, [isMuted]);
 
   const value: ExtendedAudioPlayerContextType = {
