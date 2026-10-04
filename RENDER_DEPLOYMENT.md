@@ -49,7 +49,7 @@ If you prefer to configure the Web Service manually in the Render UI:
    - **Runtime**: `Node`
    - **Build Command**:
      ```bash
-     npm install && node scripts/switch-db.mjs postgresql && npx prisma db push && node scripts/seed.mjs && npm run build
+     npm install && npm run render:build
      ```
    - **Start Command**:
      ```bash

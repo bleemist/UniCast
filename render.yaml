@@ -7,7 +7,7 @@ services:
     runtime: node
     plan: starter # or free
     region: frankfurt # Low latency to East Africa / Uganda
-    buildCommand: npm install && node scripts/switch-db.mjs postgresql && npx prisma db push && node scripts/seed.mjs && npm run build
+    buildCommand: npm install && npm run render:build
     startCommand: npm start
     healthCheckPath: /api/stream/status
     envVars:

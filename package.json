@@ -11,10 +11,9 @@
     "prisma:generate": "node scripts/switch-db.mjs && prisma generate",
     "prisma:push": "prisma db push",
     "prisma:seed": "node scripts/seed.mjs",
-    "render:build": "node scripts/switch-db.mjs && prisma generate && prisma db push --accept-data-loss && node scripts/seed.mjs && next build"
+    "render:build": "node scripts/switch-db.mjs postgresql && prisma generate && prisma db push --accept-data-loss && node scripts/seed.mjs && next build"
   },
   "dependencies": {
-    "@neon/config": "^1.8.3",
     "@prisma/client": "^5.21.1",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
