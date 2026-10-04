@@ -10,7 +10,7 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-14 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 md:py-14 space-y-8 sm:space-y-12">
       {/* Header */}
       <div className="space-y-2">
         <div className="flex items-center gap-2">
@@ -19,7 +19,7 @@ export default function ContactPage() {
             Station Enquiries
           </span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+        <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
           Contact UniCast Radio
         </h1>
         <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
@@ -27,7 +27,7 @@ export default function ContactPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 items-start">
         {/* Left 7 Cols: Contact Form */}
         <div className="lg:col-span-7">
           <Card className="border-navy-700/80 bg-navy-850/80 shadow-2xl">
@@ -40,7 +40,7 @@ export default function ContactPage() {
                 We review inquiries during working hours (Monday to Friday, 8:00 AM - 5:00 PM).
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <ContactForm />
             </CardContent>
           </Card>
@@ -49,7 +49,7 @@ export default function ContactPage() {
         {/* Right 5 Cols: Contact Details */}
         <div className="lg:col-span-5 space-y-6">
           <Card className="border-navy-800 bg-navy-850/70">
-            <CardContent className="p-6 space-y-6">
+            <CardContent className="p-4 sm:p-6 space-y-6">
               <div className="space-y-1">
                 <h3 className="text-base font-bold text-white">
                   Studio Inquiries & Channels

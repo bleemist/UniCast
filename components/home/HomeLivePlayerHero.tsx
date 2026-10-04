@@ -62,16 +62,16 @@ export function HomeLivePlayerHero({ currentShow }: HomeLivePlayerHeroProps) {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-gradient-to-b from-navy-950 via-navy-900 to-navy-900 border-b border-navy-800/80 pt-8 pb-14 md:py-16">
+      <section className="relative overflow-hidden bg-gradient-to-b from-navy-950 via-navy-900 to-navy-900 border-b border-navy-800/80 pt-6 pb-10 md:py-16">
         {/* Background radial glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-radio-500/10 blur-[130px] rounded-full pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center">
             {/* Left Column: Radio Headline & Show Information */}
-            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-navy-850 border border-navy-750 text-xs text-slate-300">
+            <div className="lg:col-span-7 space-y-4 sm:space-y-6 text-center lg:text-left">
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
+                <div className="inline-flex items-center gap-2 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-navy-850 border border-navy-750 text-[11px] sm:text-xs text-slate-300">
                   <span className="w-2 h-2 rounded-full bg-live animate-ping" />
                   <span className="font-semibold text-white">LIVE ON AIR</span>
                   <span className="text-slate-500">•</span>
@@ -82,7 +82,7 @@ export function HomeLivePlayerHero({ currentShow }: HomeLivePlayerHeroProps) {
                 <button
                   type="button"
                   onClick={() => setUniModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-radio-500/10 hover:bg-radio-500/20 border border-radio-500/30 text-xs text-radio-300 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full bg-radio-500/10 hover:bg-radio-500/20 border border-radio-500/30 text-[11px] sm:text-xs text-radio-300 transition-colors"
                 >
                   <GraduationCap className="w-3.5 h-3.5 text-radio-400" />
                   <span>
@@ -97,7 +97,7 @@ export function HomeLivePlayerHero({ currentShow }: HomeLivePlayerHeroProps) {
               </div>
 
               <div className="space-y-3">
-                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+                <h1 className="text-2xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
                   One Radio. <br className="hidden sm:inline" />
                   <span className="bg-gradient-to-r from-radio-400 via-cyan-300 to-white bg-clip-text text-transparent">
                     Every Campus.
@@ -109,9 +109,9 @@ export function HomeLivePlayerHero({ currentShow }: HomeLivePlayerHeroProps) {
               </div>
 
               {/* Current Show Details Box */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-navy-850/80 border border-navy-750 backdrop-blur-sm max-w-xl mx-auto lg:mx-0 text-left flex items-center justify-between gap-4">
+              <div className="p-4 sm:p-5 rounded-2xl bg-navy-850/80 border border-navy-750 backdrop-blur-sm max-w-xl mx-auto lg:mx-0 text-left flex items-center justify-between gap-3 sm:gap-4">
                 <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-navy-800 border border-navy-700 flex-shrink-0">
+                  <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden bg-navy-800 border border-navy-700 flex-shrink-0">
                     <Image
                       src={coverImage}
                       alt={showTitle}
@@ -155,7 +155,7 @@ export function HomeLivePlayerHero({ currentShow }: HomeLivePlayerHeroProps) {
                     )
                   }
                   className={cn(
-                    "w-full sm:w-auto px-8 font-bold text-base",
+                    "w-full sm:w-auto px-6 sm:px-8 font-bold text-base",
                     !isPlaying && "glow-live"
                   )}
                 >
@@ -180,8 +180,8 @@ export function HomeLivePlayerHero({ currentShow }: HomeLivePlayerHeroProps) {
             </div>
 
             {/* Right Column: Visual Studio Display Card */}
-            <div className="lg:col-span-5 relative max-w-md mx-auto w-full">
-              <div className="relative aspect-square rounded-3xl overflow-hidden border border-navy-700/80 shadow-2xl bg-navy-850 group">
+            <div className="lg:col-span-5 relative max-w-sm sm:max-w-md mx-auto w-full">
+              <div className="relative aspect-[4/3] sm:aspect-square rounded-3xl overflow-hidden border border-navy-700/80 shadow-2xl bg-navy-850 group">
                 <Image
                   src={coverImage}
                   alt="UniCast Studio Broadcast"
@@ -203,7 +203,7 @@ export function HomeLivePlayerHero({ currentShow }: HomeLivePlayerHeroProps) {
                 </div>
 
                 {/* Bottom Card Overlay */}
-                <div className="absolute bottom-6 left-6 right-6 space-y-3">
+                <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-radio-400">
                       <Image

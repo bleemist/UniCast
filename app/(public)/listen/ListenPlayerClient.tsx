@@ -84,7 +84,7 @@ export function ListenPlayerClient({
   const nextShow = upcomingSchedules[0]?.programme;
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6 sm:space-y-10">
       {/* Studio Banner & University Audience Tag */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-navy-800">
         <div>
@@ -94,7 +94,7 @@ export function ListenPlayerClient({
               UniCast Master Broadcast Desk
             </span>
           </div>
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+          <h1 className="text-xl sm:text-4xl font-extrabold text-white tracking-tight">
             UniCast Live Studio
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 mt-1">
@@ -127,11 +127,11 @@ export function ListenPlayerClient({
       </div>
 
       {/* Main Studio Audio Console */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 items-start">
         {/* Left 7 Cols: Big Interactive Player */}
         <div className="lg:col-span-7 space-y-6">
           <Card className="border-navy-750 bg-navy-850/80 overflow-hidden shadow-2xl relative">
-            <div className="relative h-64 sm:h-80 w-full bg-navy-950">
+            <div className="relative h-48 sm:h-80 w-full bg-navy-950">
               <Image
                 src={showCover}
                 alt={showTitle}
@@ -160,7 +160,7 @@ export function ListenPlayerClient({
               )}
             </div>
 
-            <CardContent className="p-6 md:p-8 space-y-6">
+            <CardContent className="p-4 sm:p-6 md:p-8 space-y-6">
               <div>
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-bold uppercase tracking-wider text-radio-400">
@@ -208,14 +208,14 @@ export function ListenPlayerClient({
               )}
 
               {/* Big Primary Control Row */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-2">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 pt-2">
                 <div className="flex items-center gap-4 w-full sm:w-auto">
                   <button
                     onClick={handleToggle}
                     disabled={!streamOnline && !isPlaying}
                     aria-label={isPlaying ? "Pause Broadcast" : "Play Broadcast"}
                     className={cn(
-                      "w-16 h-16 rounded-full flex items-center justify-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radio-400 flex-shrink-0 cursor-pointer",
+                      "w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radio-400 flex-shrink-0 cursor-pointer",
                       isPlaying
                         ? "bg-radio-500 hover:bg-radio-400 text-navy-950 shadow-xl shadow-radio-500/30"
                         : !streamOnline
@@ -247,7 +247,7 @@ export function ListenPlayerClient({
                 </div>
 
                 {/* Volume Bar */}
-                <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
                   <button
                     onClick={toggleMute}
                     aria-label={isMuted ? "Unmute" : "Mute"}
@@ -267,7 +267,7 @@ export function ListenPlayerClient({
                     value={isMuted ? 0 : volume}
                     onChange={(e) => setVolume(parseFloat(e.target.value))}
                     aria-label="Volume slider"
-                    className="w-32 h-1.5 bg-navy-700 rounded-lg appearance-none cursor-pointer accent-radio-400 focus:outline-none"
+                    className="w-24 sm:w-32 h-1.5 bg-navy-700 rounded-lg appearance-none cursor-pointer accent-radio-400 focus:outline-none"
                   />
                 </div>
               </div>
@@ -310,7 +310,7 @@ export function ListenPlayerClient({
           )}
 
           {/* Interactive Request CTA */}
-          <div className="p-6 rounded-2xl bg-gradient-to-br from-radio-950/80 via-navy-850 to-navy-900 border border-radio-500/30 space-y-4">
+          <div className="p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-radio-950/80 via-navy-850 to-navy-900 border border-radio-500/30 space-y-4">
             <div className="flex items-center gap-2">
               <Music className="w-5 h-5 text-radio-400" />
               <h3 className="text-base font-bold text-white">

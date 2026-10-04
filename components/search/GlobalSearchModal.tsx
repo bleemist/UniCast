@@ -89,13 +89,13 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-16 sm:pt-24 bg-navy-950/85 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-start justify-center p-0 pt-0 sm:p-4 sm:pt-24 bg-navy-950/85 backdrop-blur-md animate-in fade-in duration-200"
     >
       <div className="fixed inset-0" onClick={onClose} aria-hidden="true" />
 
-      <div className="relative w-full max-w-2xl bg-navy-900 border border-navy-700/80 rounded-2xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[80vh]">
+      <div className="relative w-full max-w-2xl bg-navy-900 border-0 sm:border border-navy-700/80 rounded-none sm:rounded-2xl shadow-2xl overflow-hidden z-10 flex flex-col h-full sm:h-auto sm:max-h-[80vh]">
         {/* Search Input Bar */}
-        <div className="flex items-center px-4 py-3.5 border-b border-navy-750 gap-3">
+        <div className="flex items-center px-4 py-4 sm:py-3.5 border-b border-navy-750 gap-3">
           <Search className="w-5 h-5 text-slate-400 flex-shrink-0" />
           <input
             ref={inputRef}
@@ -103,7 +103,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search shows, presenters, podcasts, news..."
-            className="w-full bg-transparent text-sm text-white placeholder:text-slate-500 focus:outline-none"
+            className="w-full bg-transparent text-base sm:text-sm text-white placeholder:text-slate-500 focus:outline-none"
           />
           {isLoading ? (
             <Loader2 className="w-4 h-4 text-radio-400 animate-spin flex-shrink-0" />

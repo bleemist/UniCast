@@ -67,13 +67,13 @@ export default async function HomePage() {
   const currentShow = programmes[0] || null;
 
   return (
-    <div className="space-y-16 pb-16">
+    <div className="space-y-10 pb-10 sm:space-y-16 sm:pb-16">
       {/* 1. Live Now Hero Section */}
       <HomeLivePlayerHero currentShow={currentShow} />
 
       {/* 2. Today's Programme Lineup (What's On) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-5 sm:mb-8 gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="w-2 h-2 rounded-full bg-radio-400" />
@@ -94,7 +94,7 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
           {schedules.map((item, idx) => {
             const isFirst = idx === 1; // Mark mid-morning as sample active
             return (
@@ -113,7 +113,7 @@ export default async function HomePage() {
                     </span>
                   </div>
                 )}
-                <div className="relative h-36 w-full bg-navy-900 overflow-hidden">
+                <div className="relative h-32 sm:h-36 w-full bg-navy-900 overflow-hidden">
                   <Image
                     src={item.programme.coverImage}
                     alt={item.programme.title}
@@ -160,14 +160,14 @@ export default async function HomePage() {
 
       {/* 3. Interactive Student Hub (Requests & Podcasts) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
           {/* Song Requests Promo Banner */}
-          <div className="lg:col-span-2 rounded-2xl bg-gradient-to-r from-radio-950/60 via-navy-850 to-navy-900 border border-radio-500/30 p-6 md:p-8 flex flex-col justify-between shadow-xl relative overflow-hidden">
+          <div className="lg:col-span-2 rounded-2xl bg-gradient-to-r from-radio-950/60 via-navy-850 to-navy-900 border border-radio-500/30 p-4 sm:p-6 md:p-8 flex flex-col justify-between shadow-xl relative overflow-hidden">
             <div className="space-y-4 max-w-xl z-10">
               <Badge variant="gold" size="md">
                 Interactive Student Radio
               </Badge>
-              <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">
+              <h3 className="text-xl sm:text-3xl font-bold text-white tracking-tight leading-tight">
                 Got a favorite track or a shoutout for your campus?
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
@@ -209,7 +209,7 @@ export default async function HomePage() {
           </div>
 
           {/* Featured Podcasts Card */}
-          <div className="rounded-2xl bg-navy-850 border border-navy-800 p-6 flex flex-col justify-between shadow-lg">
+          <div className="rounded-2xl bg-navy-850 border border-navy-800 p-4 sm:p-6 flex flex-col justify-between shadow-lg">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -266,7 +266,7 @@ export default async function HomePage() {
 
       {/* 4. Meet Our Presenters Roster */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-5 sm:mb-8 gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Mic className="w-4 h-4 text-radio-400" />
@@ -287,14 +287,14 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {presenters.map((pres) => (
             <Link
               key={pres.id}
               href={`/presenters/${pres.slug}`}
-              className="rounded-2xl bg-navy-850 border border-navy-800 p-5 text-center space-y-3 hover:border-navy-700 transition-colors group block"
+              className="rounded-2xl bg-navy-850 border border-navy-800 p-4 sm:p-5 text-center space-y-3 hover:border-navy-700 transition-colors group block"
             >
-              <div className="relative w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-radio-500/40 group-hover:border-radio-400 transition-colors">
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full overflow-hidden border-2 border-radio-500/40 group-hover:border-radio-400 transition-colors">
                 <Image
                   src={pres.avatar}
                   alt={pres.name}

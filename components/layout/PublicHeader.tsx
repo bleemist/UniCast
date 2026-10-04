@@ -66,20 +66,20 @@ export function PublicHeader() {
   return (
     <>
       <header className="sticky top-0 z-30 w-full bg-navy-950/90 border-b border-navy-700/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
           {/* Brand Logo */}
           <Link
             href="/"
             className="flex items-center gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radio-400 rounded-lg p-1"
           >
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-radio-600 via-radio-500 to-cyan-300 p-0.5 shadow-lg shadow-radio-500/20 group-hover:shadow-radio-500/35 transition-all">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-radio-600 via-radio-500 to-cyan-300 p-0.5 shadow-lg shadow-radio-500/20 group-hover:shadow-radio-500/35 transition-all">
               <div className="w-full h-full bg-navy-950 rounded-[10px] flex items-center justify-center">
                 <Radio className="w-6 h-6 text-radio-400 group-hover:scale-110 transition-transform" />
               </div>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-lg sm:text-xl tracking-tight text-white">
+                <span className="font-extrabold text-base sm:text-xl tracking-tight text-white">
                   UNI<span className="text-radio-400">CAST</span>
                 </span>
                 <Badge variant="live" size="sm">
@@ -121,12 +121,12 @@ export function PublicHeader() {
           </nav>
 
           {/* Right Side: University Selector, Search & Listen CTA */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3">
             {/* Campus Selector Trigger */}
             <button
               onClick={() => setUniModalOpen(true)}
               aria-label="Select your university"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-navy-850 hover:bg-navy-800 border border-navy-700/80 text-sm text-slate-300 hover:text-white transition-colors"
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-navy-850 hover:bg-navy-800 border border-navy-700/80 text-sm text-slate-300 hover:text-white transition-colors"
             >
               <GraduationCap className="w-3.5 h-3.5 text-radio-400" />
               <span className="max-w-[130px] sm:max-w-[160px] truncate text-xs font-medium">
@@ -139,7 +139,7 @@ export function PublicHeader() {
             <button
               onClick={() => setSearchOpen(true)}
               aria-label="Search the radio platform"
-              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-navy-850 hover:bg-navy-800 text-slate-300 hover:text-white border border-navy-750 transition-colors text-sm"
+              className="flex items-center gap-2 px-2 py-2 sm:px-3 rounded-xl bg-navy-850 hover:bg-navy-800 text-slate-300 hover:text-white border border-navy-750 transition-colors text-sm"
             >
               <Search className="w-4 h-4 text-radio-400" />
               <span className="hidden lg:inline text-slate-400">Search</span>
@@ -182,7 +182,7 @@ export function PublicHeader() {
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="xl:hidden fixed inset-x-0 top-20 bg-navy-950/98 border-b border-navy-700/80 p-5 shadow-2xl backdrop-blur-2xl animate-in slide-in-from-top-2 duration-200 max-h-[85vh] overflow-y-auto">
+          <div className="xl:hidden fixed inset-x-0 top-20 bg-navy-950/98 border-b border-navy-700/80 p-5 shadow-2xl backdrop-blur-2xl animate-in slide-in-from-top-2 duration-200 max-h-[calc(100vh-10rem)] overflow-y-auto">
             <nav className="flex flex-col space-y-1.5">
               {/* Campus Selector in Mobile Menu */}
               <button

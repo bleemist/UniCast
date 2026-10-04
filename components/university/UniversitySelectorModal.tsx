@@ -100,8 +100,8 @@ export function UniversitySelectorModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg rounded-2xl bg-navy-900 border border-navy-750 shadow-2xl p-6 sm:p-7 space-y-5 text-slate-100 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-navy-950/80 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="relative w-full max-w-lg rounded-t-2xl sm:rounded-2xl bg-navy-900 border border-navy-750 shadow-2xl p-5 sm:p-7 space-y-5 text-slate-100 overflow-hidden">
         {/* Subtle decorative glow */}
         <div className="absolute top-0 right-0 w-48 h-48 bg-radio-500/10 blur-[80px] pointer-events-none rounded-full" />
 
@@ -129,7 +129,7 @@ export function UniversitySelectorModal({
                   <div className="w-8 h-8 rounded-lg bg-radio-500/20 border border-radio-500/40 flex items-center justify-center text-radio-400">
                     <GraduationCap className="w-4 h-4" />
                   </div>
-                  <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+                  <h2 className="text-base sm:text-xl font-bold text-white tracking-tight">
                     Which university are you from?
                   </h2>
                 </div>
@@ -155,12 +155,12 @@ export function UniversitySelectorModal({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search your university (e.g. Kyambogo, Makerere, MUST)..."
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-navy-850 border border-navy-700 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-radio-400 focus:ring-1 focus:ring-radio-400 transition-all"
+                className="w-full pl-10 pr-4 py-3 sm:py-2.5 rounded-xl bg-navy-850 border border-navy-700 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-radio-400 focus:ring-1 focus:ring-radio-400 transition-all"
               />
             </div>
 
             {/* University Selection List */}
-            <div className="max-h-60 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
+            <div className="max-h-[40vh] sm:max-h-60 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
               {loading ? (
                 <div className="py-8 text-center text-xs text-slate-500 space-y-2">
                   <div className="w-5 h-5 border-2 border-radio-400 border-t-transparent rounded-full animate-spin mx-auto" />

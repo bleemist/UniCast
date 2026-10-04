@@ -88,10 +88,10 @@ export function PersistentPlayerBar() {
         aria-label="Global Radio Player"
         className="fixed bottom-0 left-0 right-0 z-40 bg-navy-950/98 border-t border-navy-750/90 backdrop-blur-2xl shadow-2xl transition-all duration-300"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-3 sm:gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
           {/* Left Section: Track Info & Artwork */}
-          <div className="flex items-center gap-3 min-w-0 max-w-[200px] sm:max-w-xs md:max-w-sm">
-            <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-navy-850 border border-navy-700 flex-shrink-0">
+          <div className="flex items-center gap-3 min-w-0 max-w-[140px] sm:max-w-xs md:max-w-sm">
+            <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden bg-navy-850 border border-navy-700 flex-shrink-0">
               {currentTrack.artwork ? (
                 <Image
                   src={currentTrack.artwork}
@@ -133,7 +133,7 @@ export function PersistentPlayerBar() {
                 disabled={isLiveStream && !streamOnline && !isPlaying}
                 aria-label={isPlaying ? "Pause Broadcast" : "Play Broadcast"}
                 className={cn(
-                  "w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radio-400 flex-shrink-0 cursor-pointer",
+                  "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radio-400 flex-shrink-0 cursor-pointer",
                   isPlaying
                     ? "bg-radio-500 hover:bg-radio-400 text-navy-950 shadow-lg shadow-radio-500/25"
                     : isLiveStream && !streamOnline
@@ -206,7 +206,7 @@ export function PersistentPlayerBar() {
             <Link
               href="/listen"
               aria-label="Open Full Live Studio Player"
-              className="p-2 sm:px-3 sm:py-2 rounded-xl bg-navy-850 hover:bg-navy-800 text-slate-300 hover:text-white border border-navy-750 transition-colors flex items-center gap-1.5 text-xs font-semibold"
+              className="p-1.5 sm:px-3 sm:py-2 rounded-xl bg-navy-850 hover:bg-navy-800 text-slate-300 hover:text-white border border-navy-750 transition-colors flex items-center gap-1.5 text-xs font-semibold"
             >
               <Maximize2 className="w-4 h-4 text-radio-400" />
               <span className="hidden sm:inline">Studio Player</span>

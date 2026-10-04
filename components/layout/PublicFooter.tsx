@@ -6,9 +6,9 @@ export function PublicFooter() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-full bg-navy-950 border-t border-navy-800 text-slate-400 text-base mt-auto pb-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+    <footer className="w-full bg-navy-950 border-t border-navy-800 text-slate-400 text-base mt-auto pb-28">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
           {/* Station Identity Column */}
           <div className="space-y-4">
             <div className="flex items-center gap-2.5">
@@ -137,7 +137,7 @@ export function PublicFooter() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-navy-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+        <div className="mt-8 pt-6 sm:mt-12 sm:pt-8 border-t border-navy-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-slate-500">
           <p>© {currentYear} UniCast. Your Campus Pulse. All rights reserved.</p>
           <p className="flex items-center gap-1.5">
             One Radio. Every Campus. Powered by <Heart className="w-3.5 h-3.5 text-red-500 fill-current" /> for University Students

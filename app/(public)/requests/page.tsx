@@ -26,7 +26,7 @@ export default async function RequestsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-14 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 md:py-14 space-y-8 sm:space-y-12">
       {/* Header */}
       <div className="space-y-2">
         <div className="flex items-center gap-2">
@@ -35,7 +35,7 @@ export default async function RequestsPage() {
             Student Interaction
           </span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+        <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
           Song Requests & Live Dedications
         </h1>
         <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
@@ -43,7 +43,7 @@ export default async function RequestsPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 items-start">
         {/* Left 7 Cols: Request Form */}
         <div className="lg:col-span-7">
           <Card className="border-navy-700/80 bg-navy-850/80 shadow-2xl">
@@ -60,7 +60,7 @@ export default async function RequestsPage() {
                 Fill in your track title and dedication. Your request will appear directly on the presenter’s console.
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <SongRequestForm />
             </CardContent>
           </Card>
@@ -80,7 +80,7 @@ export default async function RequestsPage() {
                 Recent songs approved and spun by UniCast on-air presenters.
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-5 space-y-3">
+            <CardContent className="p-3.5 sm:p-5 space-y-3">
               {recentRequests.length === 0 ? (
                 <p className="text-xs text-slate-500 text-center py-6">
                   No requests queued yet. Be the first to submit!
