@@ -184,52 +184,41 @@ export default async function AdminDashboardPage() {
 
       {/* Broadcasting Pipeline Status & Recent Requests */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Cols: Broadcasting Pipeline Status */}
+        {/* Left 2 Cols: Studio Transmission Quick Actions */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className="border-navy-800 bg-navy-850/70">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Laptop className="w-5 h-5 text-radio-400" />
-                  <CardTitle className="text-base text-white">
-                    Broadcast Studio Ingestion Pipeline
-                  </CardTitle>
-                </div>
-                <Badge variant="online" size="sm">
-                  STREAM SERVER READY
-                </Badge>
+          <Card className="border-navy-800 bg-navy-850/80">
+            <CardHeader className="pb-3 border-b border-navy-750 flex flex-row items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Radio className="w-5 h-5 text-radio-400" />
+                <CardTitle className="text-base text-white">
+                  Studio Transmission & On-Air Status
+                </CardTitle>
               </div>
-              <CardDescription className="text-xs">
-                Broadcast software (BUTT, OBS, Mixxx) feeds the streaming server, which fans out to all university listeners.
-              </CardDescription>
+              <Badge variant="online" size="sm">
+                STREAM READY
+              </Badge>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-5 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="p-3 rounded-lg bg-navy-900 border border-navy-800 space-y-1">
-                  <span className="text-slate-400 block font-medium">Broadcast Software</span>
-                  <span className="text-white font-semibold flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    BUTT / OBS Studio / Mixxx (Free)
-                  </span>
-                </div>
-                <div className="p-3 rounded-lg bg-navy-900 border border-navy-800 space-y-1">
-                  <span className="text-slate-400 block font-medium">Encoding Format</span>
-                  <span className="text-white font-semibold">MP3 128 kbps / AAC 64 kbps</span>
-                </div>
-              </div>
-
-              <div className="p-3.5 rounded-lg bg-navy-900 border border-navy-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="min-w-0">
-                  <span className="text-[11px] uppercase tracking-wider text-slate-400 block">
-                    Public Stream Endpoint
-                  </span>
-                  <p className="text-xs font-mono text-radio-300 truncate mt-0.5">
+                <div className="p-3.5 rounded-xl bg-navy-900 border border-navy-800 space-y-1">
+                  <span className="text-slate-400 block font-medium">Broadcast Mount Point</span>
+                  <p className="text-xs font-mono text-radio-300 truncate">
                     {streamUrl}
                   </p>
                 </div>
+                <div className="p-3.5 rounded-xl bg-navy-900 border border-navy-800 space-y-1">
+                  <span className="text-slate-400 block font-medium">Format & Quality</span>
+                  <span className="text-white font-semibold">Live Stereo • 128 kbps</span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                <p className="text-xs text-slate-400">
+                  Start presenting, enable studio mic, and upload requested songs.
+                </p>
                 <Link href="/admin/broadcast">
-                  <Button variant="outline" size="sm" rightIcon={<ArrowUpRight className="w-3.5 h-3.5" />}>
-                    Configure Ingestion
+                  <Button variant="live" size="sm" rightIcon={<ArrowUpRight className="w-3.5 h-3.5" />}>
+                    Enter Broadcast Desk
                   </Button>
                 </Link>
               </div>

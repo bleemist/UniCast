@@ -11,7 +11,7 @@ export default async function AdminBroadcastPage() {
     redirect("/admin/login");
   }
 
-  const [settings, programmes] = await Promise.all([
+  const [settings, programmes, requests] = await Promise.all([
     prisma.radioSetting.findUnique({
       where: { id: "station_settings" },
     }),
@@ -19,14 +19,20 @@ export default async function AdminBroadcastPage() {
       include: { presenter: true, category: true },
       orderBy: { title: "asc" },
     }),
+    prisma.songRequest.findMany({
+      where: { status: { in: ["PENDING", "APPROVED"] } },
+      include: { university: true },
+      orderBy: { createdAt: "desc" },
+      take: 12,
+    }),
   ]);
 
   return (
-    <div className="space-y-8">
-      <BroadcastControlClient
-        initialSettings={settings}
-        programmes={programmes}
-      />
-    </div>
+    <BroadcastControlClient
+      initialSettings={settings}
+      programmes={programmes}
+      initialRequests={requests}
+      user={session}
+    />
   );
 }
