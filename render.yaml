@@ -29,14 +29,9 @@ services:
         value: Online Radio Network
       - key: NEXT_PUBLIC_STATION_TAGLINE
         value: Your Campus Pulse
+      # Neon Serverless PostgreSQL with Connection Pooling (PgBouncer)
       - key: DATABASE_URL
-        fromDatabase:
-          name: unicast-db
-          property: connectionString
-
-databases:
-  - name: unicast-db
-    databaseName: unicast
-    user: unicast_admin
-    plan: starter # or free
-    region: frankfurt
+        value: postgresql://neondb_owner:npg_WonT2IB4DtOx@ep-mute-band-b4jk8eze-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+      # Direct connection URL without pooler (for Prisma schema push & migrations)
+      - key: DIRECT_URL
+        value: postgresql://neondb_owner:npg_WonT2IB4DtOx@ep-mute-band-b4jk8eze.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require

@@ -1,5 +1,31 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import fs from "fs";
+import path from "path";
+
+// Load .env if not already loaded into process.env
+const envPath = path.join(process.cwd(), ".env");
+if (fs.existsSync(envPath)) {
+  const envContent = fs.readFileSync(envPath, "utf-8");
+  for (const line of envContent.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const match = trimmed.match(/^([^=]+)=(.*)$/);
+    if (match) {
+      const key = match[1].trim();
+      let val = match[2].trim();
+      if (
+        (val.startsWith('"') && val.endsWith('"')) ||
+        (val.startsWith("'") && val.endsWith("'"))
+      ) {
+        val = val.slice(1, -1);
+      }
+      if (!process.env[key]) {
+        process.env[key] = val;
+      }
+    }
+  }
+}
 
 const prisma = new PrismaClient();
 

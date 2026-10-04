@@ -1,7 +1,3 @@
-if (!process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = "file:./prisma/dev.db";
-}
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
