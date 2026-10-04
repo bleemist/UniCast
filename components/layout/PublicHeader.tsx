@@ -79,14 +79,14 @@ export function PublicHeader() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-base sm:text-lg tracking-tight text-white">
+                <span className="font-extrabold text-lg sm:text-xl tracking-tight text-white">
                   UNI<span className="text-radio-400">CAST</span>
                 </span>
                 <Badge variant="live" size="sm">
                   LIVE
                 </Badge>
               </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block tracking-wide">
+              <p className="text-xs text-slate-400 hidden sm:block tracking-wide">
                 Your Campus Pulse
               </p>
             </div>
@@ -95,7 +95,7 @@ export function PublicHeader() {
           {/* Desktop Navigation */}
           <nav
             aria-label="Main Navigation"
-            className="hidden xl:flex items-center gap-1 bg-navy-900/60 border border-navy-800 rounded-full px-3 py-1.5"
+            className="hidden xl:flex items-center gap-1 bg-navy-900/60 border border-navy-800 rounded-full px-4 py-2"
           >
             {NAV_LINKS.map((link) => {
               const isActive =
@@ -108,7 +108,7 @@ export function PublicHeader() {
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200",
+                    "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
                     isActive
                       ? "bg-radio-500 text-navy-950 font-semibold shadow-sm shadow-radio-500/20"
                       : "text-slate-300 hover:text-white hover:bg-navy-800"
@@ -126,24 +126,24 @@ export function PublicHeader() {
             <button
               onClick={() => setUniModalOpen(true)}
               aria-label="Select your university"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-navy-850 hover:bg-navy-800 border border-navy-700/80 text-xs text-slate-300 hover:text-white transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-navy-850 hover:bg-navy-800 border border-navy-700/80 text-sm text-slate-300 hover:text-white transition-colors"
             >
               <GraduationCap className="w-3.5 h-3.5 text-radio-400" />
-              <span className="max-w-[130px] sm:max-w-[160px] truncate text-[11px] font-medium">
+              <span className="max-w-[130px] sm:max-w-[160px] truncate text-xs font-medium">
                 {selectedUni ? selectedUni.name : "Select Campus"}
               </span>
-              <span className="text-[10px] text-radio-400">▾</span>
+              <span className="text-xs text-radio-400">▾</span>
             </button>
 
             {/* Global Search Button */}
             <button
               onClick={() => setSearchOpen(true)}
               aria-label="Search the radio platform"
-              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-navy-850 hover:bg-navy-800 text-slate-300 hover:text-white border border-navy-750 transition-colors text-xs"
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-navy-850 hover:bg-navy-800 text-slate-300 hover:text-white border border-navy-750 transition-colors text-sm"
             >
               <Search className="w-4 h-4 text-radio-400" />
               <span className="hidden lg:inline text-slate-400">Search</span>
-              <kbd className="hidden lg:inline-block px-1.5 py-0.5 text-[10px] font-mono rounded bg-navy-900 border border-navy-700 text-slate-400">
+              <kbd className="hidden lg:inline-block px-1.5 py-0.5 text-xs font-mono rounded bg-navy-900 border border-navy-700 text-slate-400">
                 ⌘K
               </kbd>
             </button>
@@ -190,7 +190,7 @@ export function PublicHeader() {
                   setMobileMenuOpen(false);
                   setUniModalOpen(true);
                 }}
-                className="flex items-center justify-between px-4 py-3 rounded-xl bg-navy-900 border border-navy-750 text-slate-200 text-sm mb-2"
+                className="flex items-center justify-between px-4 py-3 rounded-xl bg-navy-900 border border-navy-750 text-slate-200 text-base mb-2"
               >
                 <div className="flex items-center gap-2.5">
                   <GraduationCap className="w-4 h-4 text-radio-400" />
@@ -198,7 +198,7 @@ export function PublicHeader() {
                     {selectedUni ? `Campus: ${selectedUni.name}` : "Select Your University"}
                   </span>
                 </div>
-                <span className="text-xs text-radio-400 font-semibold">Change</span>
+                <span className="text-sm text-radio-400 font-semibold">Change</span>
               </button>
 
               <button
@@ -206,7 +206,7 @@ export function PublicHeader() {
                   setMobileMenuOpen(false);
                   setSearchOpen(true);
                 }}
-                className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-navy-900 border border-navy-750 text-slate-300 text-sm mb-2"
+                className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-navy-900 border border-navy-750 text-slate-300 text-base mb-2"
               >
                 <Search className="w-4 h-4 text-radio-400" />
                 <span>Search programmes, news, podcasts...</span>
@@ -223,7 +223,7 @@ export function PublicHeader() {
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      "flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors",
+                      "flex items-center justify-between px-4 py-3 rounded-xl text-base font-medium transition-colors",
                       isActive
                         ? "bg-radio-500/15 text-radio-300 font-semibold border border-radio-500/30"
                         : "text-slate-300 hover:text-white hover:bg-navy-850"
@@ -253,7 +253,7 @@ export function PublicHeader() {
                   Listen Live Now
                 </Button>
 
-                <div className="flex items-center justify-center gap-4 pt-2 text-xs text-slate-400">
+                <div className="flex items-center justify-center gap-4 pt-2 text-sm text-slate-400">
                   <Link href="/about" className="hover:text-radio-400">
                     About UniCast
                   </Link>

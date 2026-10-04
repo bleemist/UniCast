@@ -310,7 +310,7 @@ export default async function HomePage() {
                   {pres.roleTitle}
                 </p>
               </div>
-              <p className="text-xs text-slate-400 line-clamp-3 leading-relaxed">
+              <p className="text-sm text-slate-400 line-clamp-3 leading-relaxed">
                 {pres.bio}
               </p>
             </Link>

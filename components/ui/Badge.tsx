@@ -28,8 +28,8 @@ export function Badge({
     "inline-flex items-center font-medium rounded-full tracking-wide uppercase transition-colors";
 
   const sizeStyles = {
-    sm: "text-[10px] px-2.5 py-0.5 gap-1.5",
-    md: "text-xs px-3 py-1 gap-1.5",
+    sm: "text-xs px-3 py-1 gap-2",
+    md: "text-sm px-3.5 py-1.5 gap-2",
   };
 
   const variantStyles = {

@@ -73,15 +73,15 @@ export function Modal({
           className
         )}
       >
-        <div className="flex items-center justify-between p-5 md:p-6 border-b border-navy-700/80">
+        <div className="flex items-center justify-between p-6 md:p-8 border-b border-navy-700/80">
           <div>
             {title && (
-              <h3 className="text-lg font-semibold text-white tracking-tight">
+              <h3 className="text-xl font-semibold text-white tracking-tight">
                 {title}
               </h3>
             )}
             {description && (
-              <p className="text-xs text-slate-400 mt-1">{description}</p>
+              <p className="text-sm text-slate-400 mt-1.5">{description}</p>
             )}
           </div>
           <button
@@ -92,7 +92,7 @@ export function Modal({
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="p-5 md:p-6 max-h-[80vh] overflow-y-auto">{children}</div>
+        <div className="p-6 md:p-8 max-h-[80vh] overflow-y-auto">{children}</div>
       </div>
     </div>
   );
