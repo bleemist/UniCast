@@ -10,7 +10,6 @@ import {
   Play,
   Pause,
   Volume2,
-  VolumeX,
   CheckCircle2,
   RefreshCw,
   ExternalLink,
@@ -18,9 +17,9 @@ import {
   Check,
   Power,
   Clock,
-  Sparkles,
-  AlertCircle,
   FileAudio,
+  Headphones,
+  Signal,
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -56,10 +55,11 @@ export function BroadcastControlClient({
   const [saveSuccess, setSaveSuccess] = React.useState(false);
   const [isTogglingLive, setIsTogglingLive] = React.useState(false);
 
-  // Presenter Live Timer
+  // Presenter Live Timer & Telemetry
   const [onAirSeconds, setOnAirSeconds] = React.useState(0);
+  const [connectedListenersCount, setConnectedListenersCount] = React.useState(0);
 
-  // Microphone state & Web Audio API
+  // Web Audio Mixer & Microphone state
   const [micActive, setMicActive] = React.useState(false);
   const [micMuted, setMicMuted] = React.useState(false);
   const [micVolume, setMicVolume] = React.useState(0);
@@ -67,6 +67,11 @@ export function BroadcastControlClient({
   const micStreamRef = React.useRef<MediaStream | null>(null);
   const analyserRef = React.useRef<AnalyserNode | null>(null);
   const animationFrameRef = React.useRef<number | null>(null);
+  const broadcastDestRef = React.useRef<MediaStreamAudioDestinationNode | null>(null);
+  const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
+  const peerConnectionsRef = React.useRef<Map<string, RTCPeerConnection>>(new Map());
+  const pollTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const trackSourceRef = React.useRef<MediaElementAudioSourceNode | null>(null);
 
   // Audio track playback & requested song upload
   const [uploadedTrack, setUploadedTrack] = React.useState<{
@@ -112,50 +117,39 @@ export function BroadcastControlClient({
       .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
-  // Toggle Live Broadcast on/off
-  const handleToggleLive = async () => {
+  // Start live broadcasting: capture mic, mix audio, and start real-time transmission
+  const handleStartBroadcasting = async () => {
     setIsTogglingLive(true);
     try {
-      const nextState = !isLiveManualOverride;
-      const res = await fetch("/api/admin/broadcast/toggle", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isLiveManualOverride: nextState, streamUrl }),
+      // 1. Capture microphone
+      const micStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
       });
-      const data = await res.json();
-      if (res.ok) {
-        setIsLiveManualOverride(data.isLiveManualOverride);
-        if (data.isLiveManualOverride && !micActive) {
-          // Offer to auto-start mic when going live
-          handleStartMic();
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsTogglingLive(false);
-    }
-  };
+      micStreamRef.current = micStream;
 
-  // Start browser microphone & VU meter
-  const handleStartMic = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      micStreamRef.current = stream;
-
+      // 2. Initialize Web Audio Context & Master Broadcast Destination Mixer
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
       audioContextRef.current = audioCtx;
+
+      const broadcastDest = audioCtx.createMediaStreamDestination();
+      broadcastDestRef.current = broadcastDest;
+
+      // Connect Mic to Broadcast Destination & Analyser (VU meter)
+      const micSource = audioCtx.createMediaStreamSource(micStream);
+      micSource.connect(broadcastDest);
 
       const analyser = audioCtx.createAnalyser();
       analyser.fftSize = 64;
       analyserRef.current = analyser;
+      micSource.connect(analyser);
 
-      const source = audioCtx.createMediaStreamSource(stream);
-      source.connect(analyser);
-
+      // Start VU meter animation
       setMicActive(true);
       setMicMuted(false);
-
       const dataArray = new Uint8Array(analyser.frequencyBinCount);
       const updateVolume = () => {
         analyser.getByteFrequencyData(dataArray);
@@ -168,23 +162,153 @@ export function BroadcastControlClient({
         animationFrameRef.current = requestAnimationFrame(updateVolume);
       };
       updateVolume();
-    } catch (err) {
-      console.warn("Microphone access declined or unavailable:", err);
+
+      // Connect Track Player to Mixer so requested songs stream directly to listeners
+      if (audioPlayerRef.current) {
+        try {
+          if (!trackSourceRef.current) {
+            trackSourceRef.current = audioCtx.createMediaElementSource(audioPlayerRef.current);
+            trackSourceRef.current.connect(audioCtx.destination); // Host hears the song
+            trackSourceRef.current.connect(broadcastDest); // Listeners hear the song!
+          }
+        } catch (e) {
+          console.warn("Track mixer connection notice:", e);
+        }
+      }
+
+      // 3. Notify server to start broadcast and switch all listeners from music to live voice
+      const mimeType = MediaRecorder.isTypeSupported("audio/webm; codecs=opus")
+        ? "audio/webm; codecs=opus"
+        : "audio/ogg; codecs=opus";
+
+      const showName = user?.name ? `${user.name} Live` : "Campus Radio Live Show";
+      await fetch(
+        `/api/stream/broadcast?action=start&mimeType=${encodeURIComponent(mimeType)}&showTitle=${encodeURIComponent(showName)}`,
+        { method: "POST" }
+      );
+
+      // 4. Start MediaRecorder for 250ms audio chunk transmission
+      const recorder = new MediaRecorder(broadcastDest.stream, {
+        mimeType,
+        audioBitsPerSecond: 128000,
+      });
+      mediaRecorderRef.current = recorder;
+
+      recorder.ondataavailable = async (e) => {
+        if (e.data && e.data.size > 0) {
+          try {
+            const res = await fetch("/api/stream/broadcast", {
+              method: "POST",
+              headers: { "Content-Type": "application/octet-stream" },
+              body: e.data,
+            });
+            const data = await res.json();
+            if (typeof data.activeListeners === "number") {
+              setConnectedListenersCount(data.activeListeners);
+            }
+          } catch {
+            // ignore
+          }
+        }
+      };
+      recorder.start(250); // 250ms chunks for low-latency live streaming
+
+      // 5. Start WebRTC Broadcaster Polling Loop for direct VoIP phone-call latency
+      const pollListenerOffers = async () => {
+        try {
+          const res = await fetch("/api/stream/webrtc?action=broadcaster_poll_offers", { method: "POST" });
+          const data = await res.json();
+          if (data.offers && data.offers.length > 0 && broadcastDestRef.current) {
+            for (const item of data.offers) {
+              const { listenerId, offer } = item;
+              const pc = new RTCPeerConnection({
+                iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+              });
+              peerConnectionsRef.current.set(listenerId, pc);
+
+              // Add live mixed audio tracks (mic + music)
+              broadcastDestRef.current.stream.getTracks().forEach((track) => {
+                pc.addTrack(track, broadcastDestRef.current!.stream);
+              });
+
+              pc.onicecandidate = (event) => {
+                if (event.candidate) {
+                  fetch(`/api/stream/webrtc?action=ice_candidate&listenerId=${listenerId}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ candidate: event.candidate, role: "broadcaster" }),
+                  }).catch(() => {});
+                }
+              };
+
+              await pc.setRemoteDescription(new RTCSessionDescription(offer));
+              const answer = await pc.createAnswer();
+              await pc.setLocalDescription(answer);
+
+              await fetch(`/api/stream/webrtc?action=broadcaster_answer&listenerId=${listenerId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ answer }),
+              });
+            }
+          }
+        } catch {
+          // ignore
+        }
+      };
+
+      pollTimerRef.current = setInterval(pollListenerOffers, 1000);
+      setIsLiveManualOverride(true);
+    } catch (err: any) {
+      console.error("Broadcast start error:", err);
+      alert(err?.message || "Could not access microphone. Please allow microphone permissions in your browser.");
+    } finally {
+      setIsTogglingLive(false);
     }
   };
 
-  const handleStopMic = () => {
-    if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-    if (micStreamRef.current) {
-      micStreamRef.current.getTracks().forEach((track) => track.stop());
-      micStreamRef.current = null;
+  // Stop live broadcasting: stop audio, release mic, and return listeners to automatic music
+  const handleStopBroadcasting = async () => {
+    setIsTogglingLive(true);
+    try {
+      // 1. Stop MediaRecorder
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+        mediaRecorderRef.current = null;
+      }
+
+      // 2. Stop WebRTC polling and peer connections
+      if (pollTimerRef.current) {
+        clearInterval(pollTimerRef.current);
+        pollTimerRef.current = null;
+      }
+      peerConnectionsRef.current.forEach((pc) => pc.close());
+      peerConnectionsRef.current.clear();
+
+      // 3. Stop Mic Stream & Web Audio Context
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      if (micStreamRef.current) {
+        micStreamRef.current.getTracks().forEach((t) => t.stop());
+        micStreamRef.current = null;
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+        audioContextRef.current = null;
+      }
+      broadcastDestRef.current = null;
+      trackSourceRef.current = null;
+      setMicActive(false);
+      setMicVolume(0);
+
+      // 4. Notify server to stop broadcast & return listeners to automatic music
+      await fetch("/api/stream/broadcast?action=stop", { method: "POST" });
+      setIsLiveManualOverride(false);
+      setConnectedListenersCount(0);
+    } catch (err) {
+      console.error("Broadcast stop error:", err);
+    } finally {
+      setIsTogglingLive(false);
     }
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-      audioContextRef.current = null;
-    }
-    setMicActive(false);
-    setMicVolume(0);
   };
 
   const handleToggleMicMute = () => {
@@ -318,11 +442,26 @@ export function BroadcastControlClient({
     }
   };
 
+  // Cleanup on unmount
+  React.useEffect(() => {
+    return () => {
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+      if (micStreamRef.current) {
+        micStreamRef.current.getTracks().forEach((t) => t.stop());
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
+  }, []);
+
   return (
     <div className="space-y-6">
-      {/* Hidden native audio element */}
+      {/* Native audio element for requested track playback */}
       <audio
         ref={audioPlayerRef}
+        crossOrigin="anonymous"
         onTimeUpdate={() => {
           if (audioPlayerRef.current) {
             setTrackProgress(audioPlayerRef.current.currentTime);
@@ -342,11 +481,11 @@ export function BroadcastControlClient({
           <div className="flex items-center gap-2">
             <Radio className="w-5 h-5 text-radio-400" />
             <h1 className="text-2xl font-bold text-white tracking-tight">
-              Studio Broadcast Desk
+              Live Broadcast Desk
             </h1>
           </div>
           <p className="text-xs text-slate-400 mt-0.5">
-            Presenter controls, live on-air switch, and requested song player.
+            Direct audio transmission to campus listeners with requested track player.
           </p>
         </div>
 
@@ -393,12 +532,18 @@ export function BroadcastControlClient({
                   size="md"
                   className="px-3.5 py-1 text-xs font-bold"
                 >
-                  {isLiveManualOverride ? "● TRANSMITTING LIVE ON AIR" : "○ STUDIO OFF AIR / STANDBY"}
+                  {isLiveManualOverride ? "● TRANSMITTING LIVE SOUND TO LISTENERS" : "○ STUDIO OFF AIR / STANDBY"}
                 </Badge>
                 {isLiveManualOverride && (
                   <span className="flex items-center gap-1.5 text-xs font-mono font-bold text-white px-2.5 py-1 rounded bg-navy-950/80 border border-live/40">
                     <Clock className="w-3.5 h-3.5 text-live animate-pulse" />
                     {formatTimer(onAirSeconds)}
+                  </span>
+                )}
+                {isLiveManualOverride && connectedListenersCount > 0 && (
+                  <span className="flex items-center gap-1.5 text-xs font-mono text-cyan-300 px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-700/50">
+                    <Signal className="w-3.5 h-3.5 text-cyan-400" />
+                    {connectedListenersCount} Tuned In
                   </span>
                 )}
               </div>
@@ -409,8 +554,8 @@ export function BroadcastControlClient({
                 </h2>
                 <p className="text-xs text-slate-400 mt-0.5">
                   {isLiveManualOverride
-                    ? "Your voice and audio are streaming live to university students across campuses."
-                    : "Ready to start show. Press the button below to go on air."}
+                    ? "Live voice & music are broadcasting directly to listeners. Students hear your voice in real time."
+                    : "Automatic music is currently playing for listeners. Click below to go live and speak."}
                 </p>
               </div>
             </div>
@@ -420,7 +565,7 @@ export function BroadcastControlClient({
               <Button
                 variant={isLiveManualOverride ? "danger" : "live"}
                 size="lg"
-                onClick={handleToggleLive}
+                onClick={isLiveManualOverride ? handleStopBroadcasting : handleStartBroadcasting}
                 isLoading={isTogglingLive}
                 leftIcon={
                   isLiveManualOverride ? (
@@ -439,7 +584,7 @@ export function BroadcastControlClient({
             </div>
           </div>
 
-          {/* Live Studio Microphone Strip */}
+          {/* Live Studio Microphone & Transmission Strip */}
           <div className="mt-6 pt-6 border-t border-navy-750 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-navy-950/50 p-4 rounded-xl border border-navy-800">
             <div className="flex items-center gap-3 min-w-0">
               <div
@@ -462,7 +607,7 @@ export function BroadcastControlClient({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-white uppercase tracking-wider">
-                    Studio Mic
+                    Studio Mic Transmission
                   </span>
                   <span
                     className={cn(
@@ -475,16 +620,18 @@ export function BroadcastControlClient({
                     )}
                   >
                     {micActive && !micMuted
-                      ? "LIVE MIC ON"
+                      ? "BROADCASTING LIVE VOICE"
                       : micActive && micMuted
                       ? "MIC MUTED"
-                      : "MIC INACTIVE"}
+                      : "MIC OFF"}
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-400">
                   {micActive
-                    ? "Speaking through laptop / USB microphone."
-                    : "Click Enable to speak directly from this browser."}
+                    ? isLiveManualOverride
+                      ? "Live VoIP audio actively transmitting to anyone tuned in."
+                      : "Microphone ready."
+                    : "Microphone activates automatically when you press 'Go On Air'."}
                 </p>
               </div>
             </div>
@@ -512,28 +659,14 @@ export function BroadcastControlClient({
                 </div>
               )}
 
-              {micActive ? (
-                <>
-                  <Button
-                    variant={micMuted ? "primary" : "secondary"}
-                    size="sm"
-                    onClick={handleToggleMicMute}
-                    leftIcon={micMuted ? <Mic className="w-3.5 h-3.5" /> : <MicOff className="w-3.5 h-3.5" />}
-                  >
-                    {micMuted ? "Unmute Mic" : "Mute Mic"}
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={handleStopMic}>
-                    Disconnect Mic
-                  </Button>
-                </>
-              ) : (
+              {micActive && (
                 <Button
-                  variant="primary"
+                  variant={micMuted ? "primary" : "secondary"}
                   size="sm"
-                  onClick={handleStartMic}
-                  leftIcon={<Mic className="w-4 h-4" />}
+                  onClick={handleToggleMicMute}
+                  leftIcon={micMuted ? <Mic className="w-3.5 h-3.5" /> : <MicOff className="w-3.5 h-3.5" />}
                 >
-                  Enable Studio Mic
+                  {micMuted ? "Unmute Mic" : "Mute Mic"}
                 </Button>
               )}
             </div>
@@ -553,7 +686,7 @@ export function BroadcastControlClient({
                   Song Request Player & Uploader
                 </CardTitle>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Upload audio files for student requests or spin on-air tracks.
+                  Uploaded tracks stream live directly to listeners when you press Play.
                 </p>
               </div>
 
@@ -606,7 +739,7 @@ export function BroadcastControlClient({
                     </div>
 
                     <Badge variant={isPlayingTrack ? "live" : "category"} size="sm">
-                      {isPlayingTrack ? "PLAYING NOW" : "QUEUED"}
+                      {isPlayingTrack ? "BROADCASTING TRACK" : "QUEUED"}
                     </Badge>
                   </div>
 
@@ -647,7 +780,7 @@ export function BroadcastControlClient({
                       }
                       className="font-bold px-4"
                     >
-                      {isPlayingTrack ? "Pause Track" : "Play on Air"}
+                      {isPlayingTrack ? "Pause Track" : "Play to Listeners"}
                     </Button>
 
                     <div className="flex items-center gap-2">
@@ -703,7 +836,7 @@ export function BroadcastControlClient({
               />
               <div className="flex items-center justify-between pt-1">
                 <span className="text-[11px] text-slate-400">
-                  Icecast / Shoutcast / Zeno endpoint for listeners.
+                  Icecast / Shoutcast / Zeno endpoint for automated fallback.
                 </span>
                 <Button variant="primary" size="sm" onClick={handleSaveStream}>
                   Save Endpoint
